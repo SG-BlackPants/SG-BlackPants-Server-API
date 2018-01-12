@@ -3,7 +3,9 @@ const config = require('./config'),
 
   module.exports = function(){
     //mongoose.Promise = global.Promise;
-    const db = mongoose.connect(config.db,
+    const db = mongoose.connect(config.db, {
+      useMongoClient: true
+    },
     err => console.log(err ? err : 'MongoDB connected')
   );
 

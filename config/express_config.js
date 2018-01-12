@@ -20,9 +20,6 @@ module.exports = function(){
   app.use(bodyParser.json());
   app.use(methodOverride());
 
-  app.use(flash());
-
-  require('../app/routes/index.server.routes.js')(app);
   require('../app/routes/users.server.routes.js')(app);
   require('../app/routes/admin.server.routes.js')(app);
   app.use(express.static('./public'));
