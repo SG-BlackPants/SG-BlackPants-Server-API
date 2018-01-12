@@ -1,0 +1,26 @@
+{
+  "name": "UnivScanner",
+  "version": "1.0.0",
+  "description": "for smilegate first task",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "compression": "^1.7.1",
+    "connect-flash": "^0.1.1",
+    "express": "^4.16.2",
+    "method-override": "^2.3.10",
+    "mongoose": "^5.0.0-rc1",
+    "morgan": "^1.9.0"
+  },
+  "devDependencies": {
+    "color": "latest"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "forever start -l D:/project/SG-BlackPants-Server-API/logfile.log -a app.js",
+    "restart": "forever restart app.js",
+    "stop": "forever stop app.js"
+  },
+  "author": "Jongku Lee",
+  "license": "ISC"
+}
