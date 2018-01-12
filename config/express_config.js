@@ -3,8 +3,7 @@ const express = require('express'),
       compress = require('compression'),
       bodyParser = require('body-parser'),
       methodOverride = require('method-override'),
-      config = require('./config'),
-      flash = require('connect-flash');
+      config = require('./config');
 
 module.exports = function(){
   const app = express();
