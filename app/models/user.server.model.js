@@ -1,6 +1,13 @@
 const mongoose = require('mongoose'),
       crypto= require('crypto'),
+      algorithm = 'aes-256-cbc',
+      key = 'thisissecretkey',
       Schema = mongoose.Schema;
+
+function StringLengthValidator(val){
+  if(val.length < 8) return null;
+  return val;
+};
 
 const UserSchema = new Schema({
   _id : {
@@ -20,15 +27,12 @@ const UserSchema = new Schema({
   joinDate : {
     type : Date
   },
-  keywords : {
-    type : Object
-  },
+  keywords : [ObjectId],
   community : {
       name : String,
       uid : String,
       loginID : String,
       loginPW : String,
-      salt : String,
       url : String
   },
   search : {
@@ -38,18 +42,26 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', function(next){
   if(this.community.loginPW){
-    this.salt = new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
-    this.community.loginPW = this.hashPassword(this.community.loginPW);
+    console.log('this at encrypt: ' + this);
+    this.community.loginPW = this.encrypt(this.community.loginPW);
   }
   next();
 });
 
-UserSchema.methods.hashPassword = function(password){
-  return crypto.pbkdf2Sync(password, this.salt, 10000, 64, 'sha512').toString('base64');
+UserSchema.methods.encrypt = function(password){
+    const cipher = crypto.createCipher(algorithm, key);
+    let result = cipher.update(password, 'utf8', 'base64');
+    result += cipher.final('base64');
+
+    return result;
 };
 
-UserSchema.methods.authenticate = function(password){
-  return this.password === this.hashPassword(password);
+UserSchema.methods.decrypt = function(password){
+    const decipher = crypto.createDecipher(algorithm, key);
+    let result = decipher.update(password, 'base64', 'utf8');
+    result += decipher.final('utf8');
+
+    return result;
 };
 
 mongoose.model('User', UserSchema);
