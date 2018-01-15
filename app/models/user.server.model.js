@@ -26,19 +26,23 @@ const UserSchema = new Schema({
     type : String
   },
   joinDate : {
-    type : Date
+    type : Date,
+    default : Date.now
   },
-  keywords : [ObjectId],
-  community : {
+  keywords : [{
+    type : Schema.Types.ObjectId,
+    ref : 'Keyword'
+  }],
+  community : [{
       name : String,
       uid : String,
       loginID : String,
       loginPW : String,
       url : String
-  },
-  search : {
+  }],
+  search : [{
     type : String
-  }
+  }]
 }, {versionKey: false});
 
 UserSchema.pre('save', function(next){
