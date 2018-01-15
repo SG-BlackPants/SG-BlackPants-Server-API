@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
       Schema = mongoose.Schema;
 
 function StringLengthValidator(val){
-  if(val.length < 8) return null;
+  if(val.length > 10) return null;
   return val;
 };
 
@@ -19,7 +19,8 @@ const UserSchema = new Schema({
     type : String
   },
   name : {
-    type : String
+    type : String,
+    validate : [{validator:StringLengthValidator, msg:'name length should be less than 10'}]
   },
   university : {
     type : String
