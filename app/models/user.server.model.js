@@ -1,11 +1,10 @@
 const mongoose = require('mongoose'),
+      Schema = mongoose.Schema,
       crypto= require('crypto'),
-      algorithm = 'aes-256-cbc',
-      key = 'thisissecretkey',
-      Schema = mongoose.Schema;
+      config = require('../../config/config.js');
 
 function StringLengthValidator(val){
-  if(val.length > 10) return null;
+  if(val.length > 8) return null;
   return val;
 };
 
@@ -20,7 +19,7 @@ const UserSchema = new Schema({
   },
   name : {
     type : String,
-    validate : [{validator:StringLengthValidator, msg:'name length should be less than 10'}]
+    validate : [{validator:StringLengthValidator, msg:'name length should be less than 8'}]
   },
   university : {
     type : String
@@ -54,7 +53,7 @@ UserSchema.pre('save', function(next){
 });
 
 UserSchema.methods.encrypt = function(password){
-    const cipher = crypto.createCipher(algorithm, key);
+    const cipher = crypto.createCipher(config.algorithm, config.key);
     let result = cipher.update(password, 'utf8', 'base64');
     result += cipher.final('base64');
 
@@ -62,7 +61,7 @@ UserSchema.methods.encrypt = function(password){
 };
 
 UserSchema.methods.decrypt = function(password){
-    const decipher = crypto.createDecipher(algorithm, key);
+    const decipher = crypto.createDecipher(config.algorithm, config.key);
     let result = decipher.update(password, 'base64', 'utf8');
     result += decipher.final('utf8');
 
