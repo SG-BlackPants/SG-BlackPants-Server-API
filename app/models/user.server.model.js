@@ -1,12 +1,13 @@
 const mongoose = require('mongoose'),
-      Schema = mongoose.Schema,
-      crypto= require('crypto'),
-      config = require('../../config/config.js');
+      Schema = mongoose.Schema;
 
-function StringLengthValidator(val){
-  if(val.length > 8) return null;
-  return val;
+function userNameLimit(val){
+  return val.length <= 8;
 };
+
+function keywordsLimit(val){
+  return val.length <= 5;
+}
 
 const UserSchema = new Schema({
   _id : {
@@ -19,7 +20,7 @@ const UserSchema = new Schema({
   },
   name : {
     type : String,
-    validate : [{validator:StringLengthValidator, msg:'name length should be less than 8'}]
+    validate : [{validator:userNameLimit, msg:'name length should be less than 8'}]
   },
   university : {
     type : String
@@ -28,10 +29,13 @@ const UserSchema = new Schema({
     type : Date,
     default : Date.now
   },
-  keywords : [{
-    type : Schema.Types.ObjectId,
-    ref : 'Keyword'
-  }],
+  keywords : {
+    type : [{
+      type : Schema.Types.ObjectId,
+      ref : 'Keyword'
+    }],
+    validate : [{validator: keywordsLimit, msg: 'keywords exceeds the limit of 5'}]
+  },
   community : [{
       name : String,
       uid : String,
@@ -42,30 +46,9 @@ const UserSchema = new Schema({
   search : [{
     type : String
   }]
-}, {versionKey: false});
-
-UserSchema.pre('save', function(next){
-  if(this.community.loginPW){
-    console.log('this at encrypt: ' + this);
-    this.community.loginPW = this.encrypt(this.community.loginPW);
-  }
-  next();
+}, {
+  versionKey : false,
+  usePushEach : true
 });
-
-UserSchema.methods.encrypt = function(password){
-    const cipher = crypto.createCipher(config.algorithm, config.key);
-    let result = cipher.update(password, 'utf8', 'base64');
-    result += cipher.final('base64');
-
-    return result;
-};
-
-UserSchema.methods.decrypt = function(password){
-    const decipher = crypto.createDecipher(config.algorithm, config.key);
-    let result = decipher.update(password, 'base64', 'utf8');
-    result += decipher.final('utf8');
-
-    return result;
-};
 
 mongoose.model('User', UserSchema);

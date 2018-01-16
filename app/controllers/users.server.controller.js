@@ -1,5 +1,7 @@
 const User = require('mongoose').model('User'),
-      Keyword = require('mongoose').model('Keyword');
+      Keyword = require('mongoose').model('Keyword'),
+      crypto= require('crypto'),
+      config = require('../../config/config.js');
 
 exports.signup = function(req, res){
   const user = new User(req.body);
@@ -46,17 +48,83 @@ exports.userByID = function(req,res,next,id){
 };
 
 exports.update = function(req,res){
-  if(!req.body){
-    if(!req.body.name) req.user.name = req.body.name;
-    if(!req.body.university) req.user.university = req.body.university;
-    if(!req.body.keyword){
-      const keyword = new Keyword(req.body.keyword);
-      req.user.keywords.push(keyword._id);
-    }
-    if(!req.body.community) req.user.community.push(req.body.community);
-    if(!req.body.search) req.user.search.push(req.body.search);
+  if(req.body.name) req.user.name = req.body.name;
+  if(req.body.university) req.user.university = req.body.university;
+  if(req.body.community) {
+    req.body.community.loginPW = encrypt(req.body.community.loginPW);
+    req.user.community.push(req.body.community);
+  }
+  if(req.body.search) req.user.search.push(req.body.search);
+  if(req.body.keyword){
+    Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, function(err, keyword){
+      if(err){
+        res.json({
+          "result" : "ERROR",
+          "code" : err.code,
+          "message" : err
+        });
+        return;
+      }
 
-    req.user.save(function(err){
+      if(!keyword){
+        keyword = new Keyword();
+        keyword.name = req.body.keyword;
+        keyword.community = req.body.keyword_community;
+        keyword.count = 0;
+      }
+
+      if(req.user.keywords.length === 5){
+        res.json({
+          "result" : "ERROR",
+          "code" : 3032,
+          "message" : "keywords exceeds the limit of 5"
+        });
+        return;
+      }
+
+      let isDuplicated = false;
+      keyword.users.forEach(function(user){
+        if(user === req.user._id)
+          isDuplicated = true;
+      });
+
+      if(isDuplicated){
+        res.json({
+          "result" : "ERROR",
+          "code" : 11001,
+          "message" : "Keyword is duplicated"
+        });
+        return;
+      }
+
+      keyword.count = keyword.count + 1;
+      keyword.users.push(req.user._id);
+
+      keyword.save(function(err, data){
+        if(err){
+          res.json({
+            "result" : "ERROR",
+            "code" : err.code,
+            "message" : err
+          });
+          return;
+        }
+        req.user.keywords.push(data._id);
+        req.user.save(function(err){    //user update function with keywords push
+          if(err){
+            res.json({
+              "result" : "ERROR",
+              "code" : err.code,
+              "message" : err
+            });
+            return;
+          }
+          res.json(req.user);
+        });
+      });
+    });
+  }else{
+    req.user.save(function(err){      //user update function without keywords push
       if(err){
         res.json({
           "result" : "ERROR",
@@ -96,4 +164,20 @@ exports.deleteAll = function(req,res){
     }
     res.json('Success to delete all');
   });
+};
+
+function encrypt(password){
+    const cipher = crypto.createCipher(config.algorithm, config.key);
+    let result = cipher.update(password, 'utf8', 'base64');
+    result += cipher.final('base64');
+
+    return result;
+};
+
+function decrypt(password){
+    const decipher = crypto.createDecipher(config.algorithm, config.key);
+    let result = decipher.update(password, 'base64', 'utf8');
+    result += decipher.final('utf8');
+
+    return result;
 };

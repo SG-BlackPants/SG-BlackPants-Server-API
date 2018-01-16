@@ -2,9 +2,6 @@ const mongoose = require('mongoose'),
       Schema = mongoose.Schema;
 
 const KeywordSchema = new Schema({
-  _id : {
-    type : Schema.Types.ObjectId
-  },
   name : {
     type : String
   },
@@ -18,7 +15,10 @@ const KeywordSchema = new Schema({
   count : {
     type : Number
   }
-}, {versionKey: false});
+}, {
+  versionKey: false,
+  usePushEach : true
+});
 
 
 mongoose.model('Keyword', KeywordSchema);
