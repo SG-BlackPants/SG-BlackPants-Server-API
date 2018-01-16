@@ -11,6 +11,7 @@ const config = require('./config'),
 
     require('../app/models/user.server.model.js');
     require('../app/models/keyword.server.model.js');
+    require('../app/models/article.server.model.js');
 
     return db;
   }

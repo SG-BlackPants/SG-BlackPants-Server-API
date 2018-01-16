@@ -1,9 +1,9 @@
-const Keyword = require('mongoose').model('Keyword');
+const Article = require('mongoose').model('Article');
 
 exports.create = function(req, res){
-  const keyword = new Keyword(req.body);
+  const article = new Article(req.body);
 
-  keyword.save(function(err){
+  article.save(function(err){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -12,12 +12,12 @@ exports.create = function(req, res){
       });
       return;
     }
-    res.json(keyword);
+    res.json(article);
   });
 };
 
 exports.list = function(req,res){
-  Keyword.find(function(err,keywords){
+  Article.find(function(err,articles){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -26,12 +26,12 @@ exports.list = function(req,res){
       });
       return;
     }
-    res.json(keywords);
+    res.json(articles);
   });
 };
 
 exports.read = function(req,res){
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -40,12 +40,12 @@ exports.read = function(req,res){
       });
       return;
     }
-    res.json(keyword);
+    res.json(article);
   });
 };
 
-exports.update = function(req,res){ // only name, community
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+exports.update = function(req,res){ // only community, boardAddr
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -54,34 +54,35 @@ exports.update = function(req,res){ // only name, community
       });
       return;
     }
-    if(!keyword){
+    if(!article){
       res.json({
         "result" : "ERROR",
         "code" : 3010,
-        "message" : "keyword not exist"
+        "message" : "article not exist"
       });
       return;
     }
 
-    if(req.body.name) keyword.name = req.body.name;
-    if(req.body.community) keyword.community = req.body.community;
+    if(req.body.community) article.community = req.body.community;
+    if(req.body.boardAddr) article.boardAddr = req.body.boardAddr;
 
-    keyword.save(function(err){
+
+    article.save(function(err){
       if(err){
         res.json({
           "result" : "ERROR",
           "code" : 3030,
-          "message" : "keyword update error"
+          "message" : "article update error"
         });
         return;
       }
-      res.json(keyword);
+      res.json(article);
     });
   });
 };
 
 exports.delete = function(req,res){
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -90,15 +91,15 @@ exports.delete = function(req,res){
       });
       return;
     }
-    if(!keyword){
+    if(!article){
       res.json({
         "result" : "ERROR",
         "code" : 3010,
-        "message" : "keyword not exist"
+        "message" : "article not exist"
       });
       return;
     }
-    keyword.remove(function(err){
+    article.remove(function(err){
       if(err){
         res.json({
           "result" : "ERROR",
@@ -107,13 +108,13 @@ exports.delete = function(req,res){
         });
         return;
       }
-      res.json(keyword);
+      res.json(article);
     });
   });
 };
 
 exports.deleteAll = function(req,res){
-  Keyword.remove({},function(err){
+  Article.remove({},function(err){
     if(err){
       res.json({
         "result" : "ERROR",
@@ -122,6 +123,6 @@ exports.deleteAll = function(req,res){
       });
       return;
     }
-    res.json('Success to delete keywords all');
+    res.json('Success to delete articles all');
   });
 };
