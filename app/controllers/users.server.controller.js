@@ -57,7 +57,7 @@ exports.update = function(req,res){
   if(req.body.search) {
     const searchIndex = req.user.search.indexOf(req.body.search);
     if(searchIndex > -1){ //중복이 존재한다면 갱신
-      req.user.search.splice(index, 1);
+      req.user.search.splice(searchIndex, 1);
     }
 
     if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
