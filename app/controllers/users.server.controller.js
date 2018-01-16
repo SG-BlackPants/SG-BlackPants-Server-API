@@ -54,7 +54,19 @@ exports.update = function(req,res){
     req.body.community.loginPW = encrypt(req.body.community.loginPW);
     req.user.community.push(req.body.community);
   }
-  if(req.body.search) req.user.search.push(req.body.search);
+  if(req.body.search) {
+    const searchIndex = req.user.search.indexOf(req.body.search);
+    if(searchIndex > -1){ //중복이 존재한다면 갱신
+      req.user.search.splice(index, 1);
+    }
+
+    if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
+      req.user.search.pop();
+    }
+
+    req.user.search.unshift(req.body.search);
+  }
+
   if(req.body.keyword){
     Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, function(err, keyword){
       if(err){
@@ -73,7 +85,7 @@ exports.update = function(req,res){
         keyword.count = 0;
       }
 
-      if(req.user.keywords.length === 5){
+      if(req.user.keywords.length === 5){   //keyword 5개 제한
         res.json({
           "result" : "ERROR",
           "code" : 3032,
@@ -82,13 +94,8 @@ exports.update = function(req,res){
         return;
       }
 
-      let isDuplicated = false;
-      keyword.users.forEach(function(user){
-        if(user === req.user._id)
-          isDuplicated = true;
-      });
-
-      if(isDuplicated){
+      const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
+      if(keywordUsersIndex > -1){
         res.json({
           "result" : "ERROR",
           "code" : 11001,
