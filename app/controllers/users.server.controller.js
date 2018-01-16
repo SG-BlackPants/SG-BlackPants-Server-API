@@ -169,7 +169,7 @@ exports.deleteAll = function(req,res){
       });
       return;
     }
-    res.json('Success to delete all');
+    res.json('Success to delete users all');
   });
 };
 
