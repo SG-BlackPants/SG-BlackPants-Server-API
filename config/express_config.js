@@ -2,8 +2,7 @@ const express = require('express'),
       morgan = require('morgan'),
       compress = require('compression'),
       bodyParser = require('body-parser'),
-      methodOverride = require('method-override'),
-      config = require('./config');
+      methodOverride = require('method-override');
 
 module.exports = function(){
   const app = express();
