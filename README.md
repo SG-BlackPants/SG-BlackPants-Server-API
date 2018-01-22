@@ -16,7 +16,6 @@ sudo apt-get install mongodb-org
 ## Configure MongoDB Replica Settings
 Open the file /etc/mongod.conf and add the following values
 ```
-
 replication:
   oplogSizeMB: 5120
   replSetName: rs0
@@ -89,55 +88,55 @@ node.data: true
 '''
 
 ## Start Elasticsearch
-'''
+```
 sudo systemctl enable elasticsearch
 sudo systemctl start elasticsearch
-'''
+```
 
 ### pythone 3.6.3 설치
 ## Install Python
-'''
+```
 sudo add-apt-repository ppa:jonathonf/python-3.6
 sudo apt-get update
 sudo apt-get install python3.6
 sudo update-alternatives –config python3
-'''
+```
 
 ## Install pip
-'''
+```
 sudo apt-get install python3-pip
 sudo python3 -m pip install --upgrade pip
-'''
+```
 
 ### mongo-connector 설치 및 실행
 ## Install Mongo-Connector
-'''
+```
 sudo python3 -m pip install mongo-connector
-'''
+```
 
 ## Register Service
-'''
+```
 cd /usr/local/lib/python3.6/dist-packages/mongo_connector
 git clone https://github.com/mongodb-labs/mongo-connector.git
-'''
+```
 
 ## Start Mongo-Connector
-'''
+```
 mongo-connector -m localhost:27017 -t localhost:9200 -d elastic2_doc_manager
-'''
+```
 
 ### Node 설치
 ## Install Nodejs
-'''
+```
 curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 sudo apt-get install -y nodejs
-'''
+```
 
 ### Start univScanner API-Server
-'''
+```
 cd ~
 git clone https://github.com/SG-BlackPants/SG-BlackPants-Server-API.git
 sudo npm install
 sudo npm install -g forever
 forever start -l ~/SG-BlackPants-Server-API/logfile.log  -a app.js
-'''
+```
