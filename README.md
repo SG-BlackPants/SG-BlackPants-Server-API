@@ -118,6 +118,8 @@ sudo python3 -m pip install mongo-connector
 ```
 cd /usr/local/lib/python3.6/dist-packages/mongo_connector
 git clone https://github.com/mongodb-labs/mongo-connector.git
+//스크립트 실행 실패로 보류...
+//ValueError: Function has keyword-only parameters or annotations, use getfullargspec() API which can support them
 ```
 
 #### Start Mongo-Connector
