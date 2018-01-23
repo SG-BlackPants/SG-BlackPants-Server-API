@@ -5,7 +5,7 @@ const express = require('./config/express_config'),
       elasticsearch = require('./config/elasticsearch');
 
 mongoose();
-elasticsearch();
+elasticsearch.ping();
 const app = express();
 app.listen(3000);
 module.exports = app;

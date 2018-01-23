@@ -1,28 +1,17 @@
 const config = require('./config'),
       elasticsearch = require('elasticsearch'),
-      elasticClient = new elasticsearch({
+      elasticClient = new elasticsearch.Client({
         host : config.elasticsearch,
-        log : 'trace'
+        log : 'error'
       });
 
   module.exports = {
-    ping: function(req, res){
+    ping: function(){
       elasticClient.ping({
         requestTimeout: 30000
       }, function(err){
-        if(err){
-          res.status(500);
-          return res.json({
-            "result" : "ERROR",
-            "message" : "Elasticsearch cluster is down!"
-          });
-        } else{
-          res.status(200);
-          return res.json({
-            "result" : "SUCCESS",
-            "message" : "Elasticsearch cluster is up!"
-          });
-        }
+        if(err) return console.log('Elasticsearch cluster is down!');
+        console.log("Elasticsearch cluster is up!");
       });
     },
 
