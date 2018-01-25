@@ -2,7 +2,8 @@ const User = require('mongoose').model('User'),
       elasticsearch = require('../../config/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
       crypto= require('crypto'),
-      config = require('../../config/config.js');
+      config = require('../../config/config.js'),
+      firebase = require('../../config/firebase');
 
 exports.signup = (req, res) => {
   const user = new User(req.body);
