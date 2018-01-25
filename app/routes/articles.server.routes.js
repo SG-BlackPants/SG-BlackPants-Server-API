@@ -1,6 +1,6 @@
 const articles = require('../../app/controllers/articles.server.controller');
 
-module.exports = function(app) {
+module.exports = app => {
   app.route('/articles')
   .post(articles.create)
   .get(articles.list)

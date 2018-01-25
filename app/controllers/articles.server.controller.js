@@ -1,9 +1,9 @@
 const Article = require('mongoose').model('Article');
 
-exports.create = function(req, res){
+exports.create = (req, res) => {
   const article = new Article(req.body);
 
-  article.save(function(err){
+  article.save(err => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -16,8 +16,8 @@ exports.create = function(req, res){
   });
 };
 
-exports.list = function(req,res){
-  Article.find(function(err,articles){
+exports.list = (req,res) => {
+  Article.find((err,articles) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -30,8 +30,8 @@ exports.list = function(req,res){
   });
 };
 
-exports.read = function(req,res){
-  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
+exports.read = (req,res) => {
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -44,8 +44,8 @@ exports.read = function(req,res){
   });
 };
 
-exports.update = function(req,res){ // only community, boardAddr
-  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
+exports.update = (req,res) => { // only community, boardAddr
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -67,7 +67,7 @@ exports.update = function(req,res){ // only community, boardAddr
     if(req.body.boardAddr) article.boardAddr = req.body.boardAddr;
 
 
-    article.save(function(err){
+    article.save(err => {
       if(err){
         res.json({
           "result" : "ERROR",
@@ -81,8 +81,8 @@ exports.update = function(req,res){ // only community, boardAddr
   });
 };
 
-exports.delete = function(req,res){
-  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, function(err, article){
+exports.delete = (req,res) => {
+  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -99,7 +99,7 @@ exports.delete = function(req,res){
       });
       return;
     }
-    article.remove(function(err){
+    article.remove(err => {
       if(err){
         res.json({
           "result" : "ERROR",
@@ -113,8 +113,8 @@ exports.delete = function(req,res){
   });
 };
 
-exports.deleteAll = function(req,res){
-  Article.remove({},function(err){
+exports.deleteAll = (req,res) => {
+  Article.remove({}, err => {
     if(err){
       res.json({
         "result" : "ERROR",

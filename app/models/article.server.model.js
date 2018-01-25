@@ -31,9 +31,7 @@ const ArticleSchema = new Schema({
   usePushEach : true
 });
 
-ArticleSchema.virtual('communityBoardAddr').get(function(){
-  return this.community + '_' + this.boardAddr;
-});
-
+ArticleSchema.virtual('communityBoardAddr').get(() => this.community + '_' + this.boardAddr);
 ArticleSchema.set('toJSON', {virtuals : true});
+
 mongoose.model('Article', ArticleSchema);

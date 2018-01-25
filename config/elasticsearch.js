@@ -5,18 +5,17 @@ const config = require('./config'),
         log : 'error'
       });
 
-  module.exports = {
-    ping: function(){
+  exports.ping = () => {
       elasticClient.ping({
-        requestTimeout: 30000
+        requestTimeout: 3000
       }, function(err){
         if(err) return console.log('Elasticsearch cluster is down!');
         console.log("Elasticsearch cluster is up!");
       });
-    },
+    };
 
     // Create index
-    initIndex: function(req, res, indexName){
+  exports.initIndex = (req, res, indexName) => {
       elasticClient.indices.create({
         index: indexName
       }).then(function(resp){
@@ -26,10 +25,10 @@ const config = require('./config'),
         res.status(500);
         return res.json(err);
       });
-    },
+    };
 
     // Check if index exists
-    indexExists: function(req, res, indexName){
+  exports.indexExists = (req, res, indexName) => {
       elasticClient.indices.exists({
         index: indexName
       }).then(function(resp){
@@ -39,10 +38,10 @@ const config = require('./config'),
         res.status(500);
         return res.json(err);
       });
-    },
+    };
 
     // Preparing index and its mapping
-    initMapping: function(req, res, indexName, docType, payload){
+    exports.initMapping = (req, res, indexName, docType, payload) => {
       elasticClient.indices.putMapping({
         index: indexName,
         type: docType,
@@ -54,10 +53,10 @@ const config = require('./config'),
         res.status(500);
         return res.json(err);
       });
-    },
+    };
 
     // Add/Update a document
-    addDocument: function(req, res, indexName, _id, docType, payload){
+    exports.addDocument = (req, res, indexName, _id, docType, payload) => {
       elasticClient.index({
         index: indexName,
         type: docType,
@@ -70,10 +69,10 @@ const config = require('./config'),
         res.status(500);
         return res.json(err);
       });
-    },
+    };
 
     // Update a document
-    updateDocument: function(req, res, index, _id, docType, payload){
+    exports.updateDocument = (req, res, index, _id, docType, payload) => {
       elasticClient.update({
         index: index,
         type: docType,
@@ -83,23 +82,27 @@ const config = require('./config'),
         if(err) return res.json(err);
         return res.json(resp);
       });
-    },
+    };
 
     // Search
-    search: function(req, res, indexName, docType, payload){
+    exports.search = (req, res, indexName, docType, payload) => {
       elasticClient.search({
         index: indexName,
         type: docType,
         body: payload
       }).then(function(resp){
-        return res.json(resp);
+        return res.json(resp.hits.hits);
       }, function(err){
-        return res.json(err);
+          res.json({
+            "result" : "ERROR",
+            "code" : err.code,
+            "message" : err
+          });
       });
-    },
+    };
 
     // Delete a document from an index
-    deleteDocument: function(req, res, index, _id, docType){
+    exports.deleteDocument = (req, res, index, _id, docType) => {
       elasticClient.delete({
         index: index,
         type: docType,
@@ -108,15 +111,14 @@ const config = require('./config'),
         if(err) return res.json(err);
         return res.json(resp);
       });
-    },
+    };
 
     // Delete all
-    deleteAll: function(req, res){
+    exports.deleteAll = (req, res) => {
       elasticClient.indices.delete({
         index: '_all'
       }, function(err, resp){
         if(err) return res.json(err);
         return  res.json(resp);
       });
-    }
-  };
+    };

@@ -1,9 +1,9 @@
 const Keyword = require('mongoose').model('Keyword');
 
-exports.create = function(req, res){
+exports.create = (req, res) => {
   const keyword = new Keyword(req.body);
 
-  keyword.save(function(err){
+  keyword.save(err => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -16,8 +16,8 @@ exports.create = function(req, res){
   });
 };
 
-exports.list = function(req,res){
-  Keyword.find(function(err,keywords){
+exports.list = (req,res) => {
+  Keyword.find((err,keywords) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -30,8 +30,8 @@ exports.list = function(req,res){
   });
 };
 
-exports.read = function(req,res){
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+exports.read = (req,res) => {
+  Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -44,8 +44,8 @@ exports.read = function(req,res){
   });
 };
 
-exports.update = function(req,res){ // only name, community
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+exports.update = (req,res) => { // only name, community
+  Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -66,7 +66,7 @@ exports.update = function(req,res){ // only name, community
     if(req.body.name) keyword.name = req.body.name;
     if(req.body.community) keyword.community = req.body.community;
 
-    keyword.save(function(err){
+    keyword.save(err => {
       if(err){
         res.json({
           "result" : "ERROR",
@@ -80,8 +80,8 @@ exports.update = function(req,res){ // only name, community
   });
 };
 
-exports.delete = function(req,res){
-  Keyword.findOne({name : req.params.name, community : req.params.community}, function(err, keyword){
+exports.delete = (req,res) => {
+  Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -98,7 +98,7 @@ exports.delete = function(req,res){
       });
       return;
     }
-    keyword.remove(function(err){
+    keyword.remove(err => {
       if(err){
         res.json({
           "result" : "ERROR",
@@ -112,8 +112,8 @@ exports.delete = function(req,res){
   });
 };
 
-exports.deleteAll = function(req,res){
-  Keyword.remove({},function(err){
+exports.deleteAll = (req,res) => {
+  Keyword.remove({}, err => {
     if(err){
       res.json({
         "result" : "ERROR",

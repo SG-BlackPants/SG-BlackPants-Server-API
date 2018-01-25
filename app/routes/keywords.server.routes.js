@@ -1,6 +1,6 @@
 const keywords = require('../../app/controllers/keywords.server.controller');
 
-module.exports = function(app) {
+module.exports = app => {
   app.route('/keywords')
   .post(keywords.create)
   .get(keywords.list)

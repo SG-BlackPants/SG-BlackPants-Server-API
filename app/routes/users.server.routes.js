@@ -1,9 +1,9 @@
 const users = require('../../app/controllers/users.server.controller');
 
-module.exports = function(app) {
+module.exports = app => {
   app.route('/users')
   .post(users.signup)
-  .get(users.list)
+  .get(users.list_elasticsearch)
   .delete(users.deleteAll);
 
   app.route('/users/:userId')

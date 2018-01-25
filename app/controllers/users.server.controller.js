@@ -1,12 +1,13 @@
 const User = require('mongoose').model('User'),
+      elasticsearch = require('../../config/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
       crypto= require('crypto'),
       config = require('../../config/config.js');
 
-exports.signup = function(req, res){
+exports.signup = (req, res) => {
   const user = new User(req.body);
 
-  user.save(function(err){
+  user.save(err => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -19,8 +20,8 @@ exports.signup = function(req, res){
   });
 };
 
-exports.list = function(req,res){
-  User.find(function(err,users){
+exports.list_mongoDB = (req,res) => {
+  User.find((err,users) => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -33,12 +34,25 @@ exports.list = function(req,res){
   });
 };
 
-exports.read = function(req,res){
+exports.list_elasticsearch = (req,res) => {
+  elasticsearch.search(req, res, 'univscanner', 'users', {
+    query : { match_all : {}}
+  });
+};
+
+exports.read = (req,res) => {
   res.json(req.user);
 };
 
-exports.userByID = function(req,res,next,id){
-  User.findById(id, function(err, user){
+exports.userByID = (req,res,next,id) => {
+  elasticsearch.search(req, res, 'univscanner', 'users', {
+    query : {
+      match : {
+        "_id" : id
+      }
+    }
+  });
+  User.findById(id, (err, user) => {
     if(err){
       return next(err);
     }
@@ -47,7 +61,7 @@ exports.userByID = function(req,res,next,id){
   });
 };
 
-exports.update = function(req,res){
+exports.update = (req,res) => {
   if(req.body.name) req.user.name = req.body.name;
   if(req.body.university) req.user.university = req.body.university;
   if(req.body.community) {
@@ -68,7 +82,7 @@ exports.update = function(req,res){
   }
 
   if(req.body.keyword){
-    Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, function(err, keyword){
+    Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
       if(err){
         res.json({
           "result" : "ERROR",
@@ -107,7 +121,7 @@ exports.update = function(req,res){
       keyword.count = keyword.count + 1;
       keyword.users.push(req.user._id);
 
-      keyword.save(function(err, data){
+      keyword.save((err, data) => {
         if(err){
           res.json({
             "result" : "ERROR",
@@ -117,7 +131,7 @@ exports.update = function(req,res){
           return;
         }
         req.user.keywords.push(data._id);
-        req.user.save(function(err){    //user update function with keywords push
+        req.user.save(err => {    //user update function with keywords push
           if(err){
             res.json({
               "result" : "ERROR",
@@ -131,7 +145,7 @@ exports.update = function(req,res){
       });
     });
   }else{
-    req.user.save(function(err){      //user update function without keywords push
+    req.user.save(err => {      //user update function without keywords push
       if(err){
         res.json({
           "result" : "ERROR",
@@ -145,8 +159,8 @@ exports.update = function(req,res){
   }
 };
 
-exports.delete = function(req,res){
-  req.user.remove(function(err){
+exports.delete = (req,res) => {
+  req.user.remove(err => {
     if(err){
       res.json({
         "result" : "ERROR",
@@ -159,8 +173,8 @@ exports.delete = function(req,res){
   });
 };
 
-exports.deleteAll = function(req,res){
-  User.remove({},function(err){
+exports.deleteAll = (req,res) => {
+  User.remove({}, err => {
     if(err){
       res.json({
         "result" : "ERROR",

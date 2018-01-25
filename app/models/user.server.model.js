@@ -17,7 +17,6 @@ const UserSchema = new Schema({
   },
   name : {
     type : String
-    //validate : [{validator:userNameLimit, msg:'name length should be less than 8'}]
   },
   university : {
     type : String
@@ -31,7 +30,6 @@ const UserSchema = new Schema({
       type : Schema.Types.ObjectId,
       ref : 'Keyword'
     }]
-  //  validate : [{validator: keywordsLimit, msg: 'keywords exceeds the limit of 5'}]
   },
   community : [{
       name : String,
@@ -48,17 +46,10 @@ const UserSchema = new Schema({
   usePushEach : true
 });
 
-UserSchema.path('email').validate(function(email){
-  var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-  return emailRegex.test(email.text); // Assuming email has a text attribute
-}, 'Please fill a valid email address');
+const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-UserSchema.path('_id').validate(function(id){
-  return id.length <= 8;
-}, 'id length exceeds the limit of 8');
-
-UserSchema.path('keywords').validate(function(keywords){
-  return keywords.length <= 5;
-}, 'keywords exceeds the limit of 5');
+UserSchema.path('email').validate(email => emailRegex.test(email), 'Please fill a valid email address');
+UserSchema.path('_id').validate(id => id.length <= 8, 'id length exceeds the limit of 8');
+UserSchema.path('keywords').validate(keywords => keywords.length <= 5, 'keywords exceeds the limit of 5');
 
 mongoose.model('User', UserSchema);
