@@ -6,7 +6,7 @@ module.exports = (app) => {
     res.status(404).json({
       "result" : "ERROR",
       "code" : "NotFound",
-      "message" : "It has no match url"
+      "message" : req.url + " not found"
     });
   });
 
