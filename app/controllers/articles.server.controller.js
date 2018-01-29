@@ -4,7 +4,7 @@ exports.create = (req, res, next) => {
   const article = new Article(req.body);
 
   article.save(err => {
-    if(err) next(err);
+    if(err) return next(err);
     res.json(article);
   });
 };
@@ -19,6 +19,11 @@ exports.list = (req, res, next) => {
 exports.read = (req, res, next) => {
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err) return next(err);
+    if(!article){
+      const err = new Error('article not exist');
+      err.code = 'ArticleNotExists'
+      return next(err);
+    }
     res.json(article);
   });
 };
@@ -27,12 +32,9 @@ exports.update = (req, res, next) => { // only community, boardAddr
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err) return next(err);
     if(!article){
-      res.json({
-        "result" : "ERROR",
-        "code" : 3010,
-        "message" : "article not exist"
-      });
-      return;
+      const err = new Error('article not exist');
+      err.code = 'ArticleNotExists'
+      return next(err);
     }
 
     if(req.body.community) article.community = req.body.community;
@@ -40,14 +42,7 @@ exports.update = (req, res, next) => { // only community, boardAddr
 
 
     article.save(err => {
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : 3030,
-          "message" : "article update error"
-        });
-        return;
-      }
+      if(err) return next(err);
       res.json(article);
     });
   });
@@ -55,17 +50,14 @@ exports.update = (req, res, next) => { // only community, boardAddr
 
 exports.delete = (req, res, next) => {
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
-    if(err) next(err);
+    if(err) return next(err);
     if(!article) {
-      res.json({
-        "result" : "ERROR",
-        "code" : 3010,
-        "message" : "article not exist"
-      });
-      return;
+      const err = new Error('article not exist');
+      err.code = 'ArticleNotExists'
+      return next(err);
     }
     article.remove(err => {
-      if(err) next(err);
+      if(err) return next(err);
       res.json(article);
     });
   });
@@ -73,7 +65,11 @@ exports.delete = (req, res, next) => {
 
 exports.deleteAll = (req, res, next) => {
   Article.remove({}, err => {
-    if(err) next(err);
-    res.json('Success to delete articles all');
+    if(err) return next(err);
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "DeleteAll",
+      "message" : "Success to delete users all"
+    });
   });
 };

@@ -4,64 +4,56 @@ exports.create = (req, res, next) => {
   const keyword = new Keyword(req.body);
 
   keyword.save(err => {
-    if(err) next(err);
+    if(err) return next(err);
     res.json(keyword);
   });
 };
 
-exports.list = (req,res) => {
+exports.list = (req, res, next) => {
   Keyword.find((err,keywords) => {
-    if(err) next(err);
+    if(err) return next(err);
     res.json(keywords);
   });
 };
 
-exports.read = (req,res) => {
+exports.read = (req, res, next) => {
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err) next(err);
+    if(err) return next(err);
+    if(!keyword){
+      const err = new Error('keyword not exists');
+      err.code = 'KeywordNotExists';
+      return next(err);
+    }
     res.json(keyword);
   });
 };
 
-exports.update = (req,res) => { // only name, community
+exports.update = (req, res, next) => { // only name, community
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err) next(err);
+    if(err) return next(err);
     if(!keyword){
-      res.json({
-        "result" : "ERROR",
-        "code" : 3010,
-        "message" : "keyword not exist"
-      });
-      return;
+      const err = new Error('keyword not exists')
+      err.code = 'KeywordNotExists'
+      return next(err);
     }
 
     if(req.body.name) keyword.name = req.body.name;
     if(req.body.community) keyword.community = req.body.community;
 
     keyword.save(err => {
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : 3030,
-          "message" : "keyword update error"
-        });
-        return;
-      }
+      if(err) return next(err);
       res.json(keyword);
     });
   });
 };
 
-exports.delete = (req,res) => {
+exports.delete = (req, res, next) => {
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err) next(err);
+    if(err) return next(err);
     if(!keyword){
-      res.json({
-        "result" : "ERROR",
-        "code" : 3010,
-        "message" : "keyword not exist"
-      });
-      return;
+      const err = new Error('keyword not exists');
+      err.code = 'KeywordNotExists'
+      return next(err);
     }
     keyword.remove(err => {
       if(err) next(err);
@@ -70,9 +62,13 @@ exports.delete = (req,res) => {
   });
 };
 
-exports.deleteAll = (req,res) => {
+exports.deleteAll = (req, res, next) => {
   Keyword.remove({}, err => {
-    if(err) next(err);
-    res.json('Success to delete keywords all');
+    if(err) return next(err);
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "DeleteAll",
+      "message" : "Success to delete users all"
+    });
   });
 };
