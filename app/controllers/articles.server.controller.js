@@ -1,59 +1,31 @@
 const Article = require('mongoose').model('Article');
 
-exports.create = (req, res) => {
+exports.create = (req, res, next) => {
   const article = new Article(req.body);
 
   article.save(err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(article);
   });
 };
 
-exports.list = (req,res) => {
+exports.list = (req, res, next) => {
   Article.find((err,articles) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) return next(err);
     res.json(articles);
   });
 };
 
-exports.read = (req,res) => {
+exports.read = (req, res, next) => {
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) return next(err);
     res.json(article);
   });
 };
 
-exports.update = (req,res) => { // only community, boardAddr
+exports.update = (req, res, next) => { // only community, boardAddr
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) return next(err);
     if(!article){
       res.json({
         "result" : "ERROR",
@@ -81,17 +53,10 @@ exports.update = (req,res) => { // only community, boardAddr
   });
 };
 
-exports.delete = (req,res) => {
+exports.delete = (req, res, next) => {
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
-    if(!article){
+    if(err) next(err);
+    if(!article) {
       res.json({
         "result" : "ERROR",
         "code" : 3010,
@@ -100,29 +65,15 @@ exports.delete = (req,res) => {
       return;
     }
     article.remove(err => {
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : err.code,
-          "message" : err
-        });
-        return;
-      }
+      if(err) next(err);
       res.json(article);
     });
   });
 };
 
-exports.deleteAll = (req,res) => {
+exports.deleteAll = (req, res, next) => {
   Article.remove({}, err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json('Success to delete articles all');
   });
 };

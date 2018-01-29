@@ -5,47 +5,33 @@ const User = require('mongoose').model('User'),
       config = require('../../config/config.js'),
       firebase = require('../../config/firebase');
 
-exports.signup = (req, res) => {
+exports.signup = (req, res, next) => {
   const user = new User(req.body);
 
   user.save(err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(user);
   });
 };
 
-exports.list_mongoDB = (req,res) => {
+exports.list_mongoDB = (req, res, next) => {
   User.find((err,users) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(users);
   });
 };
 
-exports.list_elasticsearch = (req,res) => {
+exports.list_elasticsearch = (req, res, next) => {
   elasticsearch.search(req, res, 'univscanner', 'users', {
     query : { match_all : {}}
   });
 };
 
-exports.read = (req,res) => {
+exports.read = (req, res, next) => {
   res.json(req.user);
 };
 
-exports.userByID = (req,res,next,id) => {
+exports.userByID = (req, res, next, id) => {
   elasticsearch.search(req, res, 'univscanner', 'users', {
     query : {
       match : {
@@ -54,15 +40,14 @@ exports.userByID = (req,res,next,id) => {
     }
   });
   User.findById(id, (err, user) => {
-    if(err){
-      return next(err);
-    }
+    if(err) return next(err);
     req.user = user;
     next();
   });
 };
 
-exports.update = (req,res) => {
+// To Do : 분할해야됨
+exports.update = (req, res, next) => {
   if(req.body.name) req.user.name = req.body.name;
   if(req.body.university) req.user.university = req.body.university;
   if(req.body.community) {
@@ -84,14 +69,7 @@ exports.update = (req,res) => {
 
   if(req.body.keyword){
     Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : err.code,
-          "message" : err
-        });
-        return;
-      }
+      if(err) next(err);
 
       if(!keyword){
         keyword = new Keyword();
@@ -123,68 +101,78 @@ exports.update = (req,res) => {
       keyword.users.push(req.user._id);
 
       keyword.save((err, data) => {
-        if(err){
-          res.json({
-            "result" : "ERROR",
-            "code" : err.code,
-            "message" : err
-          });
-          return;
-        }
+        if(err) next(err);
         req.user.keywords.push(data._id);
         req.user.save(err => {    //user update function with keywords push
-          if(err){
-            res.json({
-              "result" : "ERROR",
-              "code" : err.code,
-              "message" : err
-            });
-            return;
-          }
+          if(err) next(err);
           res.json(req.user);
         });
       });
     });
   }else{
     req.user.save(err => {      //user update function without keywords push
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : err.code,
-          "message" : err
-        });
-        return;
-      }
+      if(err) next(err);
       res.json(req.user);
     });
   }
 };
 
-exports.delete = (req,res) => {
+exports.delete = (req, res, next) => {
   req.user.remove(err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(req.user);
   });
 };
 
-exports.deleteAll = (req,res) => {
+exports.deleteAll = (req, res, next) => {
   User.remove({}, err => {
-    if(err){
+    if(err) next(err);
+    res.json({
+      "result" : "SUCCESS",
+      "code" : 200,
+      "message" : "Success to delete users all"
+    });
+  });
+};
+
+exports.isValidToken = (req, res, next) => {
+  firebase.verifyIdToken(req.body.userToken).then(decodedToken => {
+    if(!decodedToken.uid){
+      let errCode = decodedToken.errorInfo.message.split(' ')[4].replace('.','').toUpperCase();
       res.json({
         "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
+        "code" : errCode,
+        "message" : decodedToken.errorInfo.message
       });
+      console.log('invalid token')
       return;
     }
-    res.json('Success to delete users all');
+
+    req.body._id = decodedToken.uid;
+    req.body.email = decodedToken.email;
+    console.log('valid token');
+    next();
+  });
+};
+
+exports.refreshToken = (req, res, next) => {
+  firebase.verifyIdToken(req.body.userToken).then(decodedToken => {
+    console.log('Refresh Token');
+    if(!decodedToken.uid){
+      let errCode = decodedToken.errorInfo.message.split(' ')[4].replace('.','').toUpperCase();
+      res.json({
+        "result" : "ERROR",
+        "code" : errCode,
+        "message" : decodedToken.errorInfo.message
+      });
+      console.log('invalid token')
+      return;
+    }
+
+    req.body._id = decodedToken.uid;
+    req.body.email = decodedToken.email;
+    console.log('valid token');
+    next();
   });
 };
 

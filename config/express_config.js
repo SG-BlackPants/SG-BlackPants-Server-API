@@ -4,7 +4,7 @@ const express = require('express'),
       bodyParser = require('body-parser'),
       methodOverride = require('method-override');
 
-module.exports = function(){
+module.exports = () => {
   const app = express();
 
   if(process.env.NODE_ENV === 'development') {
@@ -22,7 +22,10 @@ module.exports = function(){
   require('../app/routes/users.server.routes.js')(app);
   require('../app/routes/keywords.server.routes.js')(app);
   require('../app/routes/articles.server.routes.js')(app);
+
   app.use(express.static('./public'));
+
+  require('./error_handler.js')(app);
 
   return app;
 }

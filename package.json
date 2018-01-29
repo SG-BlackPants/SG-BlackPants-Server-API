@@ -4,10 +4,12 @@
   "description": "for UnivScanner",
   "main": "app.js",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "compression": "^1.7.1",
     "elasticsearch": "^14.0.0",
     "express": "^4.16.2",
+    "fcm-node": "^1.2.1",
     "firebase-admin": "^5.8.1",
     "method-override": "^2.3.10",
     "mongoose": "^4.13.9",

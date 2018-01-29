@@ -1,59 +1,31 @@
 const Keyword = require('mongoose').model('Keyword');
 
-exports.create = (req, res) => {
+exports.create = (req, res, next) => {
   const keyword = new Keyword(req.body);
 
   keyword.save(err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(keyword);
   });
 };
 
 exports.list = (req,res) => {
   Keyword.find((err,keywords) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(keywords);
   });
 };
 
 exports.read = (req,res) => {
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json(keyword);
   });
 };
 
 exports.update = (req,res) => { // only name, community
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     if(!keyword){
       res.json({
         "result" : "ERROR",
@@ -82,14 +54,7 @@ exports.update = (req,res) => { // only name, community
 
 exports.delete = (req,res) => {
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     if(!keyword){
       res.json({
         "result" : "ERROR",
@@ -99,14 +64,7 @@ exports.delete = (req,res) => {
       return;
     }
     keyword.remove(err => {
-      if(err){
-        res.json({
-          "result" : "ERROR",
-          "code" : err.code,
-          "message" : err
-        });
-        return;
-      }
+      if(err) next(err);
       res.json(keyword);
     });
   });
@@ -114,14 +72,7 @@ exports.delete = (req,res) => {
 
 exports.deleteAll = (req,res) => {
   Keyword.remove({}, err => {
-    if(err){
-      res.json({
-        "result" : "ERROR",
-        "code" : err.code,
-        "message" : err
-      });
-      return;
-    }
+    if(err) next(err);
     res.json('Success to delete keywords all');
   });
 };

@@ -1,6 +1,7 @@
 const admin = require("firebase-admin"),
       serviceAccount = require("../serviceAccountKey.json"),
-      config = require("./config");
+      config = require("./config"),
+      Promise = require("bluebird");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -8,7 +9,9 @@ admin.initializeApp({
 });
 
 exports.verifyIdToken = idToken => {
-  admin.auth().verifyIdToken(idToken)
-     .then(decodedToken => decodedToken)
-     .catch(err => err);
+  return new Promise((resolve, reject) => {
+    admin.auth().verifyIdToken(idToken)
+       .then(decodedToken => resolve(decodedToken))
+       .catch(err => resolve(err));
+  });
 };

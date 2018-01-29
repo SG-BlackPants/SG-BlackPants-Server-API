@@ -1,0 +1,61 @@
+<facebook>
+{
+  "iss":"https://securetoken.google.com/univscanner-prototype",
+  "name":"Â÷¼¼¹Î",
+  "picture":"https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/12507508_812675818854526_8100589637907393976_n.jpg?oh=57bd103a7028d80889475a65be7a2bd5&oe=5AE7672D",
+  "aud":"univscanner-prototype",
+  "auth_time":1516925512,
+  "user_id":"ZWfMOLm6w6eb7mifTZCkhJtHNhy1",
+  "sub":"ZWfMOLm6w6eb7mifTZCkhJtHNhy1",
+  "iat":1516925513,
+  "exp":1516929113,
+  "email":"cing93@naver.com",
+  "email_verified":false,
+  "firebase":{
+    "identities":{
+       "facebook.com":["1419679831487452"],
+              "email":["cing93@naver.com"]},
+     "sign_in_provider":"facebook.com"},
+"uid":"ZWfMOLm6w6eb7mifTZCkhJtHNhy1"
+}
+
+
+<google>
+{
+  "iss":"https://securetoken.google.com/univscanner-prototype",
+  "name":"SEMIN CHA",
+  "picture":"https://lh4.googleusercontent.com/-0JyMKA-RnOM/AAAAAAAAAAI/AAAAAAAAAAA/AA6ZPT6NQtq7-yhCwi6Dcm-irtugwPs09g/s96-c/photo.jpg",
+  "aud":"univscanner-prototype",
+  "auth_time":1516927403,
+  "user_id":"hm56BPhRFUMLGeFwiMYuT7zNZHX2",
+  "sub":"hm56BPhRFUMLGeFwiMYuT7zNZHX2",
+  "iat":1516927404,
+  "exp":1516931004,
+  "email":"cing9393@gmail.com",
+  "email_verified":true,
+  "firebase":{
+      "identities":{
+         "google.com":["116505838661754772048"],
+         "email":["cing9393@gmail.com"]},
+      "sign_in_provider":"google.com"},
+  "uid":"hm56BPhRFUMLGeFwiMYuT7zNZHX2"
+}
+
+
+<email>
+{
+  "iss":"https://securetoken.google.com/univscanner-prototype",
+  "aud":"univscanner-prototype",
+  "auth_time":1516930951,
+  "user_id":"UhgSSxomorZTVCR25UcA8a1isB32",
+  "sub":"UhgSSxomorZTVCR25UcA8a1isB32",
+  "iat":1516930953,
+  "exp":1516934553,
+  "email":"cing93@naver.com",
+  "email_verified":false,
+  "firebase":{
+     "identities":{
+             "email":["cing93@naver.com"]},
+      "sign_in_provider":"password"},
+  "uid":"UhgSSxomorZTVCR25UcA8a1isB32"
+}
