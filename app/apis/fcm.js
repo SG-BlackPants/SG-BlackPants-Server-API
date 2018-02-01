@@ -8,7 +8,7 @@ exports.sendMessageToClient = (data) => {
   const message = {
     "to": data.dest,
     "priority" : "high",
-    "collapse_key": "push",
+    "collapse_key": data.community+'_'+data.boardAddr,
     data: {
       "keyword" : data.keyword,
       "community" : data.community,
