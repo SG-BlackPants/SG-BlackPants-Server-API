@@ -1,4 +1,9 @@
 const Keyword = require('mongoose').model('Keyword');
+const fcmPush = require('../apis/fcm');
+
+exports.pushTest = (req, res, next) => {
+  fcmPush.sendMessageToClient(req.body);
+};
 
 exports.create = (req, res, next) => {
   const keyword = new Keyword(req.body);

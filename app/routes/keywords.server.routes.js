@@ -10,4 +10,7 @@ module.exports = app => {
   .get(keywords.read)
   .put(keywords.update)
   .delete(keywords.delete);
+
+  app.route('/fcm/test')
+  .post(keywords.pushTest);
 };
