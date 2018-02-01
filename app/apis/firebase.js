@@ -1,6 +1,6 @@
 const admin = require("firebase-admin"),
-      serviceAccount = require("../serviceAccountKey.json"),
-      config = require("./config"),
+      serviceAccount = require("../../serviceAccountKey.json"),
+      config = require("../../config/config"),
       Promise = require("bluebird");
 
 admin.initializeApp({

@@ -1,4 +1,4 @@
-const config = require('./config'),
+const config = require('../../config/config'),
       elasticsearch = require('elasticsearch'),
       elasticClient = new elasticsearch.Client({
         host : config.elasticsearch,

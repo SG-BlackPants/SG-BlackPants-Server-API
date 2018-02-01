@@ -2,7 +2,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const express = require('./config/express_config'),
       mongoose = require('./config/mongoose'),
-      elasticsearch = require('./config/elasticsearch');
+      elasticsearch = require('./app/apis/elasticsearch');
 
 mongoose();
 elasticsearch.ping();
