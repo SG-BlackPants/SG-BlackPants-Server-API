@@ -6,6 +6,10 @@ const ArticleSchema = new Schema({
     type : String,
     required : 'community is required'
   },
+  university : {
+    type : String,
+    required : 'university is required'
+  },
   boardAddr : {
     type : String,
     required : 'boardAddr is required'
@@ -23,6 +27,9 @@ const ArticleSchema = new Schema({
     type : String
   }],
   createdDate : {
+    type : Date
+  },
+  crawledDate : {
     type : Date,
     default : Date.now
   }

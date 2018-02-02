@@ -148,16 +148,19 @@ exports.isValidToken = (req, res, next) => {
 exports.refreshToken = (req, res, next) => {
   firebase.verifyIdToken(req.body.userToken).then(decodedToken => {
     if(!decodedToken.uid){
-      console.log('invalid token')
       const err = new Error(decodedToken.errorInfo.message);
       err.code = decodedToken.errorInfo.message.split(' ')[4].replace('.','').toUpperCase();
+
+      console.log('invalid token: ' + err);
       return next(err);
     }
 
-    console.log('valid token');
-    req.body._id = decodedToken.uid;
-    req.body.email = decodedToken.email;
-    next();
+    console.log('valid token: ' + decodedToken.uid);
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "VALID_TOKEN",
+      "message" : decodedToken
+    });
   });
 };
 

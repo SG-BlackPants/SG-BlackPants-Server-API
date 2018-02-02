@@ -1,8 +1,8 @@
 const Keyword = require('mongoose').model('Keyword');
-const fcmPush = require('../apis/fcm');
+const fcmPush = require('../apis/firebase');
 
 exports.pushTest = (req, res, next) => {
-  fcmPush.sendMessageToClient(req.body);
+  const result = fcmPush.sendMessageToClient(req.body, res, next);
 };
 
 exports.create = (req, res, next) => {

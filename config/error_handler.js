@@ -33,7 +33,8 @@ module.exports = (app) => {
   });
 
   app.use(function handleDefaultError(err, req, res, next){
-    console.log(err.stack);
+    console.log("I'm default error handler");
+    console.log(err);
     res.status(500).json({
       "result" : "ERROR",
       "code" : err.code,
