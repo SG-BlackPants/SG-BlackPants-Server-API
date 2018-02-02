@@ -2,7 +2,8 @@ const admin = require("firebase-admin"),
       serviceAccount = require("../../serviceAccountKey.json"),
       config = require("../../config/config"),
       Promise = require("bluebird"),
-      serverKey = config.firebaseServerKey;
+      serverKey = config.firebaseServerKey,
+      elasticsearch = require('./elasticsearch');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -18,6 +19,11 @@ exports.verifyIdToken = idToken => {
 };
 
 exports.sendMessageToClient = (data, res, next) => {
+  const dest = elasticsearch.searchAndReturn('univscanner', 'users', {
+    query : { match_all : {}}
+  });
+  console.log(dest);
+
   const message = {
     "data" : {
       "keyword" : data.keyword,

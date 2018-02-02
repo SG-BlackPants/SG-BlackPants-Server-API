@@ -7,7 +7,7 @@ const UserSchema = new Schema({
     trim : true,
     required : 'User ID is required'
   },
-  userToken : {
+  registrationToken : {
     type : String,
     required : 'Token ID is required'
   },

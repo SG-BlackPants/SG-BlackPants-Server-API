@@ -8,7 +8,7 @@ const config = require('../../config/config'),
   exports.ping = () => {
       elasticClient.ping({
         requestTimeout: 3000
-      }, function(err){
+      }, err => {
         if(err) return console.log('Elasticsearch cluster is down!');
         console.log("Elasticsearch cluster is up!");
       });
@@ -18,10 +18,10 @@ const config = require('../../config/config'),
   exports.initIndex = (req, res, indexName) => {
       elasticClient.indices.create({
         index: indexName
-      }).then(function(resp){
+      }).then(resp => {
         res.status(200);
         return res.json(resp);
-      }, function(err){
+      }, err => {
         res.status(500);
         return res.json(err);
       });
@@ -31,10 +31,10 @@ const config = require('../../config/config'),
   exports.indexExists = (req, res, indexName) => {
       elasticClient.indices.exists({
         index: indexName
-      }).then(function(resp){
+      }).then(resp => {
         res.status(200);
         return res.json(resp);
-      }, function(err){
+      }, err => {
         res.status(500);
         return res.json(err);
       });
@@ -46,10 +46,10 @@ const config = require('../../config/config'),
         index: indexName,
         type: docType,
         body: payload
-      }).then(function(resp){
+      }).then(resp => {
         res.status(200);
         return res.json(resp);
-      }, function(err){
+      }, err => {
         res.status(500);
         return res.json(err);
       });
@@ -62,10 +62,10 @@ const config = require('../../config/config'),
         type: docType,
         id: _id,
         body: payload
-      }).then(function(resp){
+      }).then(resp => {
         res.status(200);
         return res.json(resp);
-      }, function(err){
+      }, err => {
         res.status(500);
         return res.json(err);
       });
@@ -78,7 +78,7 @@ const config = require('../../config/config'),
         type: docType,
         id: _id,
         body: payload
-      },function(err, resp){
+      }, (err, resp) => {
         if(err) return res.json(err);
         return res.json(resp);
       });
@@ -90,9 +90,10 @@ const config = require('../../config/config'),
         index: indexName,
         type: docType,
         body: payload
-      }).then(function(resp){
+      }).then(resp => {
+        console.log(resp);
         return res.json(resp.hits.hits);
-      }, function(err){
+      }, err => {
           res.json({
             "result" : "ERROR",
             "code" : err.code,
@@ -101,13 +102,31 @@ const config = require('../../config/config'),
       });
     };
 
+    exports.searchAndReturn = (indexName, docType, payload) => {
+      elasticClient.search({
+        index: indexName,
+        type: docType,
+        body: payload
+      }).then(resp => {
+        return resp.hits.hits;
+      }, err => {
+          console.log({
+            "result" : "ERROR",
+            "code" : err.code,
+            "message" : err
+          });
+          return;
+        });
+    };
+
+
     // Delete a document from an index
     exports.deleteDocument = (req, res, index, _id, docType) => {
       elasticClient.delete({
         index: index,
         type: docType,
         id: _id
-      }, function(err, resp){
+      }, (err, resp) => {
         if(err) return res.json(err);
         return res.json(resp);
       });
@@ -117,7 +136,7 @@ const config = require('../../config/config'),
     exports.deleteAll = (req, res) => {
       elasticClient.indices.delete({
         index: '_all'
-      }, function(err, resp){
+      }, (err, resp) => {
         if(err) return res.json(err);
         return  res.json(resp);
       });

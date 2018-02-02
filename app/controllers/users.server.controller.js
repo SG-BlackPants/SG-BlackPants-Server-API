@@ -7,7 +7,6 @@ const User = require('mongoose').model('User'),
 
 exports.signup = (req, res, next) => {
   const user = new User(req.body);
-
   user.save(err => {
     if(err) next(err);
     res.json(user);
@@ -48,22 +47,25 @@ exports.userByID = (req, res, next, id) => {
 
 // To Do : 분할해야됨 next('route') 이용
 exports.update = (req, res, next) => {
+  if(req.body.registrationToken) req.user.registrationToken = req.body.registrationToken;
+
   if(req.body.name) req.user.name = req.body.name;
+
   if(req.body.university) req.user.university = req.body.university;
+
   if(req.body.community) {
     req.body.community.loginPW = encrypt(req.body.community.loginPW);
     req.user.community.push(req.body.community);
   }
+
   if(req.body.search) {
     const searchIndex = req.user.search.indexOf(req.body.search);
     if(searchIndex > -1){ //중복이 존재한다면 갱신
       req.user.search.splice(searchIndex, 1);
     }
-
     if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
       req.user.search.pop();
     }
-
     req.user.search.unshift(req.body.search);
   }
 
