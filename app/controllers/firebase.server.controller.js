@@ -1,82 +1,115 @@
 const fcmPush = require('../apis/firebase'),
       elasticsearch = require('../apis/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
-      User = require('mongoose').model('User');
+      User = require('mongoose').model('User'),
+      Promise = require('bluebird');
 
 exports.pushTest = (req, res, next) => {
   const result = fcmPush.sendMessageTest(req.body, res, next);
 };
 
-exports.findKeywords = (req, res, next) => {
-  const community = req.body.community;
+exports.findKeywordsForPush = (req, res, next) => {
   elasticsearch.searchAndReturn('univscanner', 'keywords', {  //해당 community의 count가 0이 아닌 keywords 전부
     "query" : {
       "bool" : {
         "must" : [
-          { "match" : { "community" : community } }
+          { "match" : { "community" : req.body.community } }
         ],
         "must_not" : [
           { "match" : { "count" : 0 } }
         ]
       }
     }
-  }, ["name"]).then(keywords => {
+  }).then(keywords => {
     let result = [];
+
     if(keywords.result === 'SUCCESS'){
       if(!keywords.message) return;
-      keywords.message.forEach((keyword, index) => {
-        result.push(keyword._source.name);
-        if(index === keywords.message.length-1) {
-          req.body.keywords = result;
-          return next();
-        }
+      let index = 0;
+      keywords.message.forEach((keyword) => {
+        hasNewArticleByKeyword(req.body.community, keyword._source.name)
+          .then(isContained => {
+            if(isContained){
+              const node = {
+                "keyword" : keyword._source.name,
+                "boardAddr" : isContained
+              };
+              result.push(node);
+            }
+
+            if(keywords.message.length === ++index){
+              req.body.keywords = result;
+              return next();
+            }
+          }).error(err => {
+            console.log("unhandled error in hasNewArticleByKeyword");
+          });
       });
     }else if(keywords.result === 'ERROR'){
       return res.json(keywords);
     }
   }).error(err => {
     console.log("I'm unhandled error in findKeywords: " + err);
-    res.json(err);
+    return res.json(err);
   });
 };
 
-exports.isContainedKeyword = (req, res, next) => {
-  
+function hasNewArticleByKeyword(community, keyword){
+  return new Promise((resolve, reject) => {
+    elasticsearch.searchAndReturn('univscanner', 'article', {
+      "query" : {
+        "bool" : {
+          "must" : [
+            { "match" : { "community" : community } },
+            { "match" : { "content" : keyword } }
+          ]
+        }
+      }
+    }, ["boardAddr"]).then(result => {
+      const articles = result.message;
+      if(articles[0]) {
+        resolve(articles[0]._source.boardAddr);
+      }
+      else {
+        resolve(false);
+      }
+    }).error(err => {
+      console.log("I'm unhandled error in hasNewArticleByKeyword: " + err);
+      reject(err);
+    });
+  });
 };
 
-exports.pushMessagesToClients = (req, res, next) => {
-  req.body.keywords.forEach((keyword, index) => {
-    let data = {
-      "boardAddr" : "BLANK",
+exports.findUserByKeywordAndPush = (req, res, next) => {
+  console.log('req.body.keywords: ' + JSON.stringify(req.body.keywords));
+  let index = 0;
+  req.body.keywords.forEach((node) => {
+    const data = {
+      "keyword" : node.keyword,
       "community" : req.body.community,
-      "keyword" : keyword
+      "boardAddr" : node.boardAddr
     };
 
-    findUserByKeyword(data);
-
-    if(index === req.body.keywords.length-1){
-      res.json({
-        "result" : "SUCCESS",
-        "code" : "PushSuccess",
-        "message" : "Done to push messages"
-      });
-    }
-  });
-};
-
-function findUserByKeyword(data){
-  Keyword.find({name : data.keyword, community : data.community}, (err, keyword) => {
-    if(err) console.log(err);
-    else{
-      if(keyword[0]){
-        keyword[0].users.forEach(rUser => {
-          User.findById(rUser)
-            .exec((err, user) => {
-              data.dest = user.registrationToken;
+    Keyword.findOne({name : node.keyword, community : req.body.community}, (err, keyword) => {
+      if(err) console.log(err);
+      else{
+        if(keyword){
+          keyword.users.forEach(user => {
+            User.findById(user, (err, _user) => {
+              data.dest = _user.registrationToken;
               fcmPush.sendMessageToClient(data);
             });
-        });
+          });
+        }
       }
+    });
+
+    if(req.body.keywords.length === ++index){
+      return res.json({
+        "result" : "SUCCESS",
+        "code" : "PushDone",
+        "message" : "Success to push messages"
+      });
     }
   });
 };
