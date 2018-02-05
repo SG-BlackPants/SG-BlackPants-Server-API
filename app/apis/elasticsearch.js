@@ -1,4 +1,5 @@
 const config = require('../../config/config'),
+      Promise = require('bluebird'),
       elasticsearch = require('elasticsearch'),
       elasticClient = new elasticsearch.Client({
         host : config.elasticsearch,
@@ -91,7 +92,6 @@ const config = require('../../config/config'),
         type: docType,
         body: payload
       }).then(resp => {
-        console.log(resp);
         return res.json(resp.hits.hits);
       }, err => {
           res.json({
@@ -102,21 +102,33 @@ const config = require('../../config/config'),
       });
     };
 
-    exports.searchAndReturn = (indexName, docType, payload) => {
-      elasticClient.search({
-        index: indexName,
-        type: docType,
-        body: payload
-      }).then(resp => {
-        return resp.hits.hits;
-      }, err => {
-          console.log({
-            "result" : "ERROR",
-            "code" : err.code,
-            "message" : err
+    // Search and Return as Promise
+    exports.searchAndReturn = (indexName, docType, payload, source) => {
+      return new Promise((resolve, reject) => {
+        elasticClient.search({
+          index: indexName,
+          type: docType,
+          body: payload,
+          _source: source
+        }).then(resp => {
+          let found = 'NotFound';
+          if(resp.hits.hits) found = 'Found'
+
+          const result = {
+            "result" : "SUCCESS",
+            "code" : found,
+            "message" : resp.hits.hits
+          }
+          resolve(result);
+        }, err => {
+            const result = {
+              "result" : "ERROR",
+              "code" : err.code,
+              "message" : err
+            };
+            reject(result);
           });
-          return;
-        });
+      });
     };
 
 

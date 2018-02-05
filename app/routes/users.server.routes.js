@@ -12,7 +12,7 @@ module.exports = app => {
   .delete(users.delete);
 
   app.route('/fbToken')
-    .post(users.refreshToken);
+    .post(users.decodingToken);
 
   app.param('userId', users.userByID);  //app.route보다 먼저 실행됨
 };

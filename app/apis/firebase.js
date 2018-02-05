@@ -18,16 +18,29 @@ exports.verifyIdToken = idToken => {
   });
 };
 
-exports.sendMessageToClient = (data, res, next) => {
-  const dest = elasticsearch.searchAndReturn('univscanner', 'users', {
-    query : { match_all : {}}
-  });
-  console.log(dest);
-
+exports.sendMessageToClient = data => {
   const message = {
     "data" : {
       "keyword" : data.keyword,
-      "university" : data.university,
+      "community" : data.community,
+      "boardAddr" : data.boardAddr
+    }
+  };
+
+  admin.messaging().sendToDevice(data.dest, message)
+      .then(result => {
+        result = JSON.stringify(result);
+        console.log('Successfully sent message: ' + result);
+        })
+      .catch(err => {
+        console.log('Error sending message: ' + err);
+      });
+};
+
+exports.sendMessageTest = (data, res, next) => {
+  const message = {
+    "data" : {
+      "keyword" : data.keyword,
       "community" : data.community,
       "boardAddr" : data.boardAddr
     }
@@ -36,11 +49,10 @@ exports.sendMessageToClient = (data, res, next) => {
   admin.messaging().sendToDevice(data.dest, message)
       .then(result => {
         console.log('Successfully sent message: ' + result);
-        res.json(result);
+        return res.json(result);
       })
       .catch(err => {
         console.log('Error sending message: ' + err);
         next(err);
       });
-
 };

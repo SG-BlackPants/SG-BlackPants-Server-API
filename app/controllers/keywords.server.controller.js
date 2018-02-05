@@ -29,6 +29,7 @@ exports.read = (req, res, next) => {
 };
 
 exports.update = (req, res, next) => { // only name, community
+  req.params.name = '맥북'
   Keyword.findOne({name : req.params.name, community : req.params.community}, (err, keyword) => {
     if(err) return next(err);
     if(!keyword){

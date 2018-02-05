@@ -31,13 +31,6 @@ exports.read = (req, res, next) => {
 };
 
 exports.userByID = (req, res, next, id) => {
-  elasticsearch.search(req, res, 'univscanner', 'users', {
-    query : {
-      match : {
-        "_id" : id
-      }
-    }
-  });
   User.findById(id, (err, user) => {
     if(err) return next(err);
     req.user = user;
@@ -71,7 +64,7 @@ exports.update = (req, res, next) => {
 
   if(req.body.keyword){
     Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
-      if(err) next(err);
+      if(err) return next(err);
 
       if(!keyword){
         keyword = new Keyword();
@@ -84,30 +77,30 @@ exports.update = (req, res, next) => {
         const err = new Error('keywords exceeds the limit of 5');
         err.code = 'KeywordExceeded'
         return next(err);
-      }
+      }else console.log('no exceeded 5')
 
       const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
       if(keywordUsersIndex > -1){
         const err = new Error('keyword is duplicated');
         err.code = 'KeywordDuplicated'
         return next(err);
-      }
+      }else console.log('no duplicated keyword')
 
       keyword.count = keyword.count + 1;
       keyword.users.push(req.user._id);
 
       keyword.save((err, data) => {
-        if(err) next(err);
+        if(err) return next(err);
         req.user.keywords.push(data._id);
         req.user.save(err => {    //user update function with keywords push
-          if(err) next(err);
+          if(err) return next(err);
           res.json(req.user);
         });
       });
     });
   }else{
     req.user.save(err => {      //user update function without keywords push
-      if(err) next(err);
+      if(err) return next(err);
       res.json(req.user);
     });
   }
@@ -144,6 +137,20 @@ exports.isValidToken = (req, res, next) => {
     req.body._id = decodedToken.uid;
     req.body.email = decodedToken.email;
     next();
+  });
+};
+
+exports.decodingToken = (req, res, next) => {
+  firebase.verifyIdToken(req.body.userToken).then(decodedToken => {
+    if(!decodedToken.uid){
+      console.log('invalid token')
+      const err = new Error(decodedToken.errorInfo.message);
+      err.code = decodedToken.errorInfo.message.split(' ')[4].replace('.','').toUpperCase();
+      return next(err);
+    }
+
+    console.log('valid token');
+    res.json(decodedToken);
   });
 };
 

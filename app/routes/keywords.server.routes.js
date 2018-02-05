@@ -6,7 +6,7 @@ module.exports = app => {
   .get(keywords.list)
   .delete(keywords.deleteAll);
 
-  app.route('/keywords/:name/:community')
+  app.route('/keywords/:community/:name')
   .get(keywords.read)
   .put(keywords.update)
   .delete(keywords.delete);
