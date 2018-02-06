@@ -103,20 +103,15 @@ const config = require('../../config/config'),
     };
 
     // Search and Return as Promise
-    exports.searchAndReturn = (indexName, docType, payload, source) => {
+    exports.searchAndReturn = (query) => {
       return new Promise((resolve, reject) => {
-        elasticClient.search({
-          index: indexName,
-          type: docType,
-          body: payload,
-          _source: source
-        }).then(resp => {
-          let found = 'NotFound';
-          if(resp.hits.hits) found = 'Found'
+        elasticClient.search(query).then(resp => {
+          let isFound = 'NotFound';
+          if(resp.hits.hits) isFound = 'Found'
 
           const result = {
             "result" : "SUCCESS",
-            "code" : found,
+            "code" : isFound,
             "message" : resp.hits.hits
           }
           resolve(result);

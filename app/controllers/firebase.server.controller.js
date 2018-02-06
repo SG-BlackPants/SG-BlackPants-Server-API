@@ -9,25 +9,29 @@ exports.pushTest = (req, res, next) => {
 };
 
 exports.findKeywordsForPush = (req, res, next) => {
-  elasticsearch.searchAndReturn('univscanner', 'keywords', {  //해당 community의 count가 0이 아닌 keywords 전부
-    "query" : {
-      "bool" : {
-        "must" : [
-          { "match" : { "community" : req.body.community } }
-        ],
-        "must_not" : [
-          { "match" : { "count" : 0 } }
-        ]
-      }
-    }
-  }).then(keywords => {
+  const query = {
+    "index" : "univscanner",
+    "type" : "keywords",
+    "body" : { "query" : {
+                "bool" : {
+                  "must" : [
+                    { "match" : { "community" : req.body.community } }
+                  ],
+                  "must_not" : [
+                    { "match" : { "count" : 0 } }
+                  ]
+                }
+              }
+            }
+    };
+  elasticsearch.searchAndReturn(query).then(keywords => {
     let result = [];
 
     if(keywords.result === 'SUCCESS'){
       if(!keywords.message) return;
       let index = 0;
       keywords.message.forEach((keyword) => {
-        hasNewArticleByKeyword(req.body.community, keyword._source.name)
+        hasNewArticleByKeyword(req.body.community, keyword._source.name, req.body.createdDate)
           .then(isContained => {
             if(isContained){
               const node = {
@@ -54,20 +58,39 @@ exports.findKeywordsForPush = (req, res, next) => {
   });
 };
 
-function hasNewArticleByKeyword(community, keyword){
+function hasNewArticleByKeyword(community, keyword, createdDate){
   return new Promise((resolve, reject) => {
-    elasticsearch.searchAndReturn('univscanner', 'article', {
-      "query" : {
-        "bool" : {
-          "must" : [
-            { "match" : { "community" : community } },
-            { "match" : { "content" : keyword } }
-          ]
-        }
-      }
-    }, ["boardAddr"]).then(result => {
+    const query = {
+      "index" : "univscanner",
+      "type": "article",
+      "body": {
+                "query" : {
+                  "bool" : {
+                    "must" : [
+                      { "match" : { "community" : community } },
+                      { "match" : { "content" : keyword } },
+                      { "range" : { "createdDate" : {
+                                              "gte" : createdDate,
+                                              "lte" : "now",
+                                              "format" : "yyyy-MM-dd HH:mm:ss",
+                                              "time_zone" : "+09:00"
+                                            }
+                                          }
+                                        }
+                    ]
+                  }
+                },
+                "_source": ["boardAddr", "createdDate"],
+                "sort" : [
+                  { "createdDate" : { "order" : "desc" } },
+                  "_score"
+                ]
+              }
+    }
+    elasticsearch.searchAndReturn(query).then(result => {
       const articles = result.message;
       if(articles[0]) {
+        console.log(JSON.stringify(articles));
         resolve(articles[0]._source.boardAddr);
       }
       else {
@@ -81,7 +104,6 @@ function hasNewArticleByKeyword(community, keyword){
 };
 
 exports.findUserByKeywordAndPush = (req, res, next) => {
-  console.log('req.body.keywords: ' + JSON.stringify(req.body.keywords));
   let index = 0;
   req.body.keywords.forEach((node) => {
     const data = {

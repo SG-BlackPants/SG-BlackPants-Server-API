@@ -29,8 +29,7 @@ exports.sendMessageToClient = data => {
 
   admin.messaging().sendToDevice(data.dest, message)
       .then(result => {
-        result = JSON.stringify(result);
-        console.log('Successfully sent message: ' + result);
+        console.log('Successfully sent message ( ' + JSON.stringify(message) +' )');
         })
       .catch(err => {
         console.log('Error sending message: ' + err);
