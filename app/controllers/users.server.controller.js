@@ -179,31 +179,39 @@ exports.getRecentlySearch = (req, res, next) => {
 };
 
 exports.popKeyword = (req, res, next) => {
-  const query = {
-    "index" : "univscanner",
-    "type" : "keywords",
-    "body" : {
-      "query" : {
-        "bool" : {
-          "must" : [
-            { "match" : { "name" : req.body.keyword } },
-            { "match" : { "community" : req.body.community } }
-          ]
-        }
-      }
-    }
-  };
+  Keyword.findOne({ name : req.body.keyword, community : req.body.community })
+      .exec((err, keyword) => {
+        const userIndex = keyword.users.indexOf(req.params.userId);
+        keyword.users.splice(userIndex, 1);
+        keyword.count = keyword.count - 1;
+        keyword.save(err => {
+          if(err) return next(err);
+        });
+        User.findById(req.params.userId)
+          .exec((err, user) => {
+            if(err) return next(err);
+            const keywordIndex = user.keywords.indexOf(keyword._id);
+            user.keywords.splice(keywordIndex, 1);
+            user.save(err => {
+              if(err) return next(err);
+              res.json({
+                "result" : "SUCCESS",
+                "code" : "DELETE_KEYWORD",
+                "message" : "success to delete keyword from user"
+              });
+            });
+          });
+      });
 
-
-  const searchIndex = req.user.search.indexOf(req.body.search);
-  if(searchIndex > -1){ //존재한다면 제거
-    const keywordId = req.user.search
-    req.user.search.splice(searchIndex, 1);
-  }else{
-    const err = new Error("not found keyword");
-    err.code = "keywordPopFail";
-    next(err);
-  }
+  // const searchIndex = req.user.search.indexOf(req.body.search);
+  // if(searchIndex > -1){ //존재한다면 제거
+  //   const keywordId = req.user.search
+  //   req.user.search.splice(searchIndex, 1);
+  // }else{
+  //   const err = new Error("not found keyword");
+  //   err.code = "keywordPopFail";
+  //   next(err);
+  // }
 };
 
 function encrypt(password){
