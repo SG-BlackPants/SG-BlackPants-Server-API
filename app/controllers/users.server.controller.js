@@ -195,7 +195,6 @@ exports.popKeyword = (req, res, next) => {
   };
 
 
-
   const searchIndex = req.user.search.indexOf(req.body.search);
   if(searchIndex > -1){ //존재한다면 제거
     const keywordId = req.user.search
