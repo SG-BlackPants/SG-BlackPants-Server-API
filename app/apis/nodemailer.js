@@ -1,11 +1,14 @@
 const nodemailer = require('nodemailer'),
       Promise = require('bluebird'),
-      account = require('../../serviceAccountKey');
+      account = require('../../serviceAccountKey'),
+      config = require('../../config/config');
 //      redis = require('./redis');
 
 const transporter = nodemailer.createTransport({
-  service: "google",
+  service: "Gmail",
   auth: {
+    host: config.nodemailer_host,
+    port: config.nodemailer_port,
     user: account.google_email,
     pass: account.google_password
   }
@@ -19,12 +22,15 @@ module.exports = user => {
       from : account.google_email,
       to : user.email,
       subject : "UnivScanner 가입 인증메일입니다",
-      text : "링크를 클릭하시면 인증이 완료됩니다.\n <h1>" + verifyEmailUrl + "</h1>"
+      text : "링크를 클릭하시면 인증이 완료됩니다.\n <" + verifyEmailUrl + ">"
     };
 
     transporter.sendMail(mailOption, (err, info) => {
       transporter.close();
-      if(err) reject(err);
+      if(err){
+        console.log(err);
+        reject(err);
+      }
       resolve(info);
     });
   });
