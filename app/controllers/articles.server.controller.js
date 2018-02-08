@@ -1,4 +1,5 @@
-const Article = require('mongoose').model('Article');
+const Article = require('mongoose').model('Article'),
+      elasticsearch = require('../apis/elasticsearch');
 
 exports.create = (req, res, next) => {
   const article = new Article(req.body);
@@ -17,6 +18,31 @@ exports.list = (req, res, next) => {
 };
 
 exports.read = (req, res, next) => {
+  const query = {
+    "index" : "univscanner",
+    "type" : "article",
+    "body" : { "query" : {
+                  "bool" : {
+                    "must" : [
+                      { "match" : { "community" : req.params.community } },
+                      { "match" : { "boardAddr" : req.params.boardAddr } }
+                    ]
+                  }
+                }
+            }
+    };
+
+    elasticsearch.searchAndReturn(query)
+        .then(result => {
+          return res.json({
+            "result" : "SUCCESS",
+            "code" : "readArticle",
+            "message" : result._source
+          })
+        }).error(err => {
+          console.log('error from read: ' + err)
+          next(err);
+        });
   Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
     if(err) return next(err);
     if(!article){
@@ -72,4 +98,35 @@ exports.deleteAll = (req, res, next) => {
       "message" : "Success to delete users all"
     });
   });
+};
+
+exports.searchArticlesByKeyword = (req, res, next) => {
+  const query = {
+    "index" : "univscanner",
+    "type" : "article",
+    "body" : { "query" : {
+                  "bool" : {
+                    "should" : [
+                      { "match" : { "content" : req.params.keyword } },
+                      { "match" : { "title" : req.params.keyword } }
+                    ]
+                  }
+                },
+                "sort" : [
+                  { "createdDate" : { "order" : "desc" } }
+                ]
+            }
+    };
+
+  elasticsearch.searchAndReturn(query)
+      .then(result => {
+        res.json({
+          "result" : "SUCCESS",
+          "code" : "Search",
+          "message" : result._source
+        });
+      }).error(err => {
+        console.log('error from searchArticlesByKeyword: ' + err);
+        next(err);
+      });
 };

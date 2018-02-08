@@ -1,3 +1,4 @@
+
 const fcmPush = require('../apis/firebase'),
       elasticsearch = require('../apis/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
@@ -13,23 +14,24 @@ exports.findKeywordsForPush = (req, res, next) => {
     "index" : "univscanner",
     "type" : "keywords",
     "body" : { "query" : {
-                "bool" : {
-                  "must" : [
-                    { "match" : { "community" : req.body.community } }
-                  ],
-                  "must_not" : [
-                    { "match" : { "count" : 0 } }
-                  ]
+                  "bool" : {
+                    "must" : [
+                      { "match" : { "community" : req.body.community } }
+                    ],
+                    "must_not" : [
+                      { "match" : { "count" : 0 } }
+                    ]
+                  }
                 }
-              }
             }
     };
+
   elasticsearch.searchAndReturn(query).then(keywords => {
     let result = [];
 
     if(keywords.result === 'SUCCESS'){
       if(!keywords.message) return;
-      let index = 0;
+      let jobCount = 0;
       keywords.message.forEach((keyword) => {
         hasNewArticleByKeyword(req.body.community, keyword._source.name, req.body.createdDate)
           .then(isContained => {
@@ -41,12 +43,12 @@ exports.findKeywordsForPush = (req, res, next) => {
               result.push(node);
             }
 
-            if(keywords.message.length === ++index){
+            if(keywords.message.length === ++jobCount){
               req.body.keywords = result;
               return next();
             }
           }).error(err => {
-            console.log("unhandled error in hasNewArticleByKeyword");
+            console.log("unhandled error in hasNewArticleByKeyword: " + err);
           });
       });
     }else if(keywords.result === 'ERROR'){
@@ -72,7 +74,6 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
                       { "range" : { "createdDate" : {
                                               "gte" : createdDate,
                                               "lte" : "now",
-                                              "format" : "yyyy-MM-dd HH:mm:ss",
                                               "time_zone" : "+09:00"
                                             }
                                           }
@@ -82,15 +83,14 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
                 },
                 "_source": ["boardAddr", "createdDate"],
                 "sort" : [
-                  { "createdDate" : { "order" : "desc" } },
-                  "_score"
+                  { "createdDate" : { "order" : "desc" } }
                 ]
               }
-    }
+    };
+
     elasticsearch.searchAndReturn(query).then(result => {
       const articles = result.message;
       if(articles[0]) {
-        console.log(JSON.stringify(articles));
         resolve(articles[0]._source.boardAddr);
       }
       else {
@@ -104,7 +104,7 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
 };
 
 exports.findUserByKeywordAndPush = (req, res, next) => {
-  let index = 0;
+  let jobCount = 0;
   req.body.keywords.forEach((node) => {
     const data = {
       "keyword" : node.keyword,
@@ -126,7 +126,7 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
       }
     });
 
-    if(req.body.keywords.length === ++index){
+    if(req.body.keywords.length === ++jobCount){
       return res.json({
         "result" : "SUCCESS",
         "code" : "PushDone",

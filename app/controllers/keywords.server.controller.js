@@ -1,4 +1,5 @@
-const Keyword = require('mongoose').model('Keyword');
+const Keyword = require('mongoose').model('Keyword'),
+      elasticsearch = require('../apis/elasticsearch');
 
 exports.create = (req, res, next) => {
   const keyword = new Keyword(req.body);
@@ -72,4 +73,39 @@ exports.deleteAll = (req, res, next) => {
       "message" : "Success to delete users all"
     });
   });
+};
+
+exports.getPopularKeywords = (req, res, next) => {
+  const query = {
+    "index" : "univscanner",
+    "type" : "keywords",
+    "body" : {
+      "query" : {
+        "bool" : {
+          "must" : [
+            { "match" : { "university" : req.params.university } }
+          ]
+        }
+      },
+      "from" : 0, "size" : 10,
+      "_source" : ["name", "count"],
+      "sort" : [
+        { "count" : { "order" : "desc" } }
+      ]
+    }
+  };
+
+  elasticsearch.searchAndReturn(query)
+    .then(result => {
+      let rankingArr = [];
+      result.message.forEach(item => {
+        rankingArr.push(item._source.name);
+      });
+
+      console.log(rankingArr);
+      return res.json(result.message);
+    }).error(err => {
+      console.log('error from getPopularKeywords: ' + err);
+      return next(err);
+    });
 };

@@ -10,6 +10,10 @@ const KeywordSchema = new Schema({
     type : String,
     required : 'community is required'
   },
+  university : {
+    type : String,
+    required : 'university is required'
+  }
   users : [{
     type : String,
     ref : 'User'

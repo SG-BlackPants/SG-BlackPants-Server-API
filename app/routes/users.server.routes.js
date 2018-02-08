@@ -11,6 +11,12 @@ module.exports = app => {
   .put(users.update)
   .delete(users.delete);
 
+  app.route('/users/keyword/:userId')
+    .put(users.popKeyword);
+
+  app.route('/users/:userId/recently')
+    .get(users.getRecentlySearch)
+
   app.route('/fbToken')
     .post(users.decodingToken);
 

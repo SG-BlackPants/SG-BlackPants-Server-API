@@ -38,7 +38,7 @@ exports.userByID = (req, res, next, id) => {
   });
 };
 
-// To Do : 분할해야됨 next('route') 이용
+// To Do : 분할해야됨
 exports.update = (req, res, next) => {
   if(req.body.registrationToken) req.user.registrationToken = req.body.registrationToken;
 
@@ -70,6 +70,7 @@ exports.update = (req, res, next) => {
         keyword = new Keyword();
         keyword.name = req.body.keyword;
         keyword.community = req.body.keyword_community;
+        keyword.university = req.body.keyword_university;
         keyword.count = 0;
       }
 
@@ -171,6 +172,39 @@ exports.refreshToken = (req, res, next) => {
       "message" : decodedToken
     });
   });
+};
+
+exports.getRecentlySearch = (req, res, next) => {
+  return res.json(req.user.search);
+};
+
+exports.popKeyword = (req, res, next) => {
+  const query = {
+    "index" : "univscanner",
+    "type" : "keywords",
+    "body" : {
+      "query" : {
+        "bool" : {
+          "must" : [
+            { "match" : { "name" : req.body.keyword } },
+            { "match" : { "community" : req.body.community } }
+          ]
+        }
+      }
+    }
+  };
+
+
+
+  const searchIndex = req.user.search.indexOf(req.body.search);
+  if(searchIndex > -1){ //존재한다면 제거
+    const keywordId = req.user.search
+    req.user.search.splice(searchIndex, 1);
+  }else{
+    const err = new Error("not found keyword");
+    err.code = "keywordPopFail";
+    next(err);
+  }
 };
 
 function encrypt(password){
