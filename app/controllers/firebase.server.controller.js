@@ -3,7 +3,8 @@ const fcmPush = require('../apis/firebase'),
       elasticsearch = require('../apis/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
       User = require('mongoose').model('User'),
-      Promise = require('bluebird');
+      Promise = require('bluebird'),
+      nodemailer = require('../apis/nodemailer');
 
 exports.pushTest = (req, res, next) => {
   const result = fcmPush.sendMessageTest(req.body, res, next);
@@ -136,10 +137,44 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
   });
 };
 
-exports.sendEmailForAuth = (req, res, next) => {
+exports.sendEmailForAuth = (req, res) => {
+  const result = nodemailer({
+    "_id" : req.params.userId,
+    "email" : req.body.email
+  });
 
+  res.json({
+    "result" : "SUCCESS",
+    "code" : "SEND_EMAIL",
+    "message" : result
+  });
+  return;
 };
 
-exports.checkEmailAuth = (req, res, next) => {
+exports.verifyEmail = (req, res, next) => {
+  User.findById(req.params.userId)
+    .exec((err, user) => {
+        user.isRegistered = true;
+        user.save(err => {
+          if(err) next(err);
+          res.json({
+            "result" : "SUCCESS",
+            "code" : "VERIFIED",
+            "message" : user
+          });
+          return;
+        });
+    });
+};
 
+exports.checkEmailVarified = (req, res, next) => {
+  User.findById(req.params.userId)
+    .exec((err, user) => {
+      if(err) next(err);
+      res.json({
+        "result" : "SUCCESS",
+        "code" : "CHECK_VERIFIED",
+        "message" : user.isRegistered
+      });
+    });
 };

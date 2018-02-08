@@ -24,6 +24,10 @@ const UserSchema = new Schema({
     type : String,
     required : 'University is required'
   },
+  isRegistered : {
+    type : Boolean,
+    default : false
+  },
   joinDate : {
     type : Date,
     default : Date.now
