@@ -38,73 +38,67 @@ exports.userByID = (req, res, next, id) => {
   });
 };
 
-// To Do : 분할해야됨
-exports.update = (req, res, next) => {
-  if(req.body.registrationToken) req.user.registrationToken = req.body.registrationToken;
-
-  if(req.body.name) req.user.name = req.body.name;
-
-  if(req.body.university) req.user.university = req.body.university;
-
-  if(req.body.community) {
-    req.body.community.loginPW = encrypt(req.body.community.loginPW);
-    req.user.community.push(req.body.community);
+exports.addSearchHistoryToUser = (req, res, next) => {
+  const searchIndex = req.user.search.indexOf(req.body.search);
+  if(searchIndex > -1){ //중복이 존재한다면 갱신
+    req.user.search.splice(searchIndex, 1);
   }
-
-  if(req.body.search) {
-    const searchIndex = req.user.search.indexOf(req.body.search);
-    if(searchIndex > -1){ //중복이 존재한다면 갱신
-      req.user.search.splice(searchIndex, 1);
-    }
-    if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
-      req.user.search.pop();
-    }
-    req.user.search.unshift(req.body.search);
+  if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
+    req.user.search.pop();
   }
+  req.user.search.unshift(req.body.search);
 
-  if(req.body.keyword){
-    Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
+  req.user.save(err => {
+    if(err) return next(err);
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "ADD_SEARCH_HISTORY",
+      "message" : req.user.search
+    })
+  })
+};
+
+exports.pushKeywordToUser = (req, res, next) => {
+  Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
+    if(err) return next(err);
+
+    if(!keyword){
+      keyword = new Keyword();
+      keyword.name = req.body.keyword;
+      keyword.community = req.body.keyword_community;
+      keyword.university = req.body.keyword_university;
+      keyword.count = 0;
+    }
+
+    if(req.user.keywords.length === 5) {
+      const err = new Error('keywords exceeds the limit of 5');
+      err.code = 'KeywordExceeded'
+      return next(err);
+    }else console.log('no exceeded 5')
+
+    const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
+    if(keywordUsersIndex > -1){
+      const err = new Error('keyword is duplicated');
+      err.code = 'KeywordDuplicated'
+      return next(err);
+    }else console.log('no duplicated keyword')
+
+    keyword.count = keyword.count + 1;
+    keyword.users.push(req.user._id);
+
+    keyword.save((err, data) => {
       if(err) return next(err);
-
-      if(!keyword){
-        keyword = new Keyword();
-        keyword.name = req.body.keyword;
-        keyword.community = req.body.keyword_community;
-        keyword.university = req.body.keyword_university;
-        keyword.count = 0;
-      }
-
-      if(req.user.keywords.length === 5) {
-        const err = new Error('keywords exceeds the limit of 5');
-        err.code = 'KeywordExceeded'
-        return next(err);
-      }else console.log('no exceeded 5')
-
-      const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
-      if(keywordUsersIndex > -1){
-        const err = new Error('keyword is duplicated');
-        err.code = 'KeywordDuplicated'
-        return next(err);
-      }else console.log('no duplicated keyword')
-
-      keyword.count = keyword.count + 1;
-      keyword.users.push(req.user._id);
-
-      keyword.save((err, data) => {
+      req.user.keywords.push(data._id);
+      req.user.save(err => {    //user update function with keywords push
         if(err) return next(err);
-        req.user.keywords.push(data._id);
-        req.user.save(err => {    //user update function with keywords push
-          if(err) return next(err);
-          res.json(req.user);
+        res.json({
+          "result" : "SUCCESS",
+          "code" : "ADD_KEYWORD_TO_USER",
+          "message" : req.user.keywords
         });
       });
     });
-  }else{
-    req.user.save(err => {      //user update function without keywords push
-      if(err) return next(err);
-      res.json(req.user);
-    });
-  }
+  });
 };
 
 exports.delete = (req, res, next) => {

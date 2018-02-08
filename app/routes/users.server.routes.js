@@ -8,10 +8,15 @@ module.exports = app => {
 
   app.route('/users/:userId')
   .get(users.read)
-  .put(users.update)
   .delete(users.delete);
 
-  app.route('/users/keyword/:userId')
+  app.route('/users/:userId/search')
+    .put(users.addSearchHistoryToUser);
+
+  app.route('/users/:userId/keyword/push')
+    .put(users.pushKeywordToUser)
+
+  app.route('/users/:userId/keyword/pop')
     .put(users.popKeyword);
 
   app.route('/users/:userId/recently')
