@@ -137,7 +137,7 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
   });
 };
 
-exports.sendEmailForAuth = (req, res) => {
+exports.sendEmailForVerified = (req, res) => {
   const result = nodemailer({
     "_id" : req.params.userId,
     "email" : req.body.email

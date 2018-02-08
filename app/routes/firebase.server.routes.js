@@ -8,11 +8,11 @@ module.exports = app => {
     .post(fb.findKeywordsForPush, fb.findUserByKeywordAndPush);
 
   app.route('/firebase/:userId/email/request')
-    .post(firebase.sendEmailForVerified);
+    .post(fb.sendEmailForVerified);
 
   app.route('/firebase/:userId/email/verify')
-    .put(firebase.verifyEmail);
+    .put(fb.verifyEmail);
 
   app.route('/firebase/:userId/email/check')
-    .get(firebase.checkEmailVarified);
+    .get(fb.checkEmailVarified);
 }

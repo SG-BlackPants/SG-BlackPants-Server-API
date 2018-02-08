@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer'),
       Promise = require('bluebird'),
-      account = require('../../serviceAccountKey'),
-      redis = require('./redis');
+      account = require('../../serviceAccountKey');
+//      redis = require('./redis');
 
 const transporter = nodemailer.createTransport({
   service: "google",
