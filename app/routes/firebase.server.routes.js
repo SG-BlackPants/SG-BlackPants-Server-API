@@ -6,4 +6,10 @@ module.exports = app => {
 
   app.route('/firebase/new')
     .post(fb.findKeywordsForPush, fb.findUserByKeywordAndPush);
+
+  app.route('/firebase/:userId/email/reqauth')
+    .get(firebase.sendEmailForAuth);
+
+  app.route('/firebase/:userId/email/checkauth')
+    .get(firebase.checkEmailAuth);
 }

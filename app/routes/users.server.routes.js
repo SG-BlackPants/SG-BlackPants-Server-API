@@ -2,13 +2,13 @@ const users = require('../../app/controllers/users.server.controller');
 
 module.exports = app => {
   app.route('/users')
-  .post(users.isValidToken, users.signup)
-  .get(users.list_elasticsearch)
-  .delete(users.deleteAll);
+    .post(users.isValidToken, users.signup)
+    .get(users.list_elasticsearch)
+    .delete(users.deleteAll);
 
   app.route('/users/:userId')
-  .get(users.read)
-  .delete(users.delete);
+    .get(users.read)
+    .delete(users.delete);
 
   app.route('/users/:userId/search')
     .put(users.addSearchHistoryToUser);

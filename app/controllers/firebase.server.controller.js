@@ -135,3 +135,11 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
     }
   });
 };
+
+exports.sendEmailForAuth = (req, res, next) => {
+
+};
+
+exports.checkEmailAuth = (req, res, next) => {
+
+};
