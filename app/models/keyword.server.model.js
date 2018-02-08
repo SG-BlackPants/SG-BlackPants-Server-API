@@ -13,7 +13,7 @@ const KeywordSchema = new Schema({
   university : {
     type : String,
     required : 'university is required'
-  }
+  },
   users : [{
     type : String,
     ref : 'User'
