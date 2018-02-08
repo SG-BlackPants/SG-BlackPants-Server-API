@@ -128,6 +128,13 @@ cd ~/SG-BlackPants-Server-API
 sudo nohup mongo-connector -m localhost:27017 -t localhost:9200 -d elastic2_doc_manager --auto-commit-interval=0 &
 ```
 
+### Redis Server 3.0.6 설치 및 실행
+```
+sudo apt-get install redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
 ### Node 설치
 #### Install Nodejs
 ```
