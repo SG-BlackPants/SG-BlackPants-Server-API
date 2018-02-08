@@ -3,4 +3,4 @@ package-lock.json
 *.log
 *.out
 *.txt
-*.json
+serviceAccountKey.json
