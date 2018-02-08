@@ -15,7 +15,10 @@ module.exports = app => {
     .put(users.popKeyword);
 
   app.route('/users/:userId/recently')
-    .get(users.getRecentlySearch)
+    .get(users.getRecentlySearch);
+
+  app.route('/users/:userId/refreshToken')
+    .put(users.isValidToken, users.refreshToken);
 
   app.route('/fbToken')
     .post(users.decodingToken);

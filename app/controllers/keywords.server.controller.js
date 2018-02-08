@@ -98,12 +98,14 @@ exports.getPopularKeywords = (req, res, next) => {
   elasticsearch.searchAndReturn(query)
     .then(result => {
       let rankingArr = [];
+      let jobCount = 0;
       result.message.forEach(item => {
         rankingArr.push(item._source.name);
+        if(result.message.length === ++jobCount){
+          console.log(rankingArr);
+          return res.json(rankingArr);
+        }
       });
-
-      console.log(rankingArr);
-      return res.json(result.message);
     }).error(err => {
       console.log('error from getPopularKeywords: ' + err);
       return next(err);

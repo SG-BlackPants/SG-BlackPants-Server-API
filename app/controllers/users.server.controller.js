@@ -156,20 +156,13 @@ exports.decodingToken = (req, res, next) => {
 };
 
 exports.refreshToken = (req, res, next) => {
-  firebase.verifyIdToken(req.body.userToken).then(decodedToken => {
-    if(!decodedToken.uid){
-      const err = new Error(decodedToken.errorInfo.message);
-      err.code = decodedToken.errorInfo.message.split(' ')[4].replace('.','').toUpperCase();
-
-      console.log('invalid token: ' + err);
-      return next(err);
-    }
-
-    console.log('valid token: ' + decodedToken.uid);
+  req.user.registrationToken = req.body.registrationToken;
+  req.user.save(err => {
+    if(err) return next(err);
     res.json({
       "result" : "SUCCESS",
-      "code" : "VALID_TOKEN",
-      "message" : decodedToken
+      "code" : "REFRESH_TOKEN",
+      "message" : req.user
     });
   });
 };
@@ -202,16 +195,6 @@ exports.popKeyword = (req, res, next) => {
             });
           });
       });
-
-  // const searchIndex = req.user.search.indexOf(req.body.search);
-  // if(searchIndex > -1){ //존재한다면 제거
-  //   const keywordId = req.user.search
-  //   req.user.search.splice(searchIndex, 1);
-  // }else{
-  //   const err = new Error("not found keyword");
-  //   err.code = "keywordPopFail";
-  //   next(err);
-  // }
 };
 
 function encrypt(password){
