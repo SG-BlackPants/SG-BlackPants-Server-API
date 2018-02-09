@@ -28,9 +28,9 @@ module.exports = user => {
     transporter.sendMail(mailOption, (err, info) => {
       transporter.close();
       if(err){
-        console.log(err);
         reject(err);
       }
+      console.log("send mail done");
       resolve(info);
     });
   });

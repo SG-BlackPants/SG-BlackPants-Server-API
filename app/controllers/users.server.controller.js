@@ -2,7 +2,7 @@ const User = require('mongoose').model('User'),
       elasticsearch = require('../apis/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
       crypto= require('crypto'),
-      config = require('../../config/config.js'),
+      config = require('../../config/config'),
       firebase = require('../apis/firebase');
 
 exports.signup = (req, res, next) => {

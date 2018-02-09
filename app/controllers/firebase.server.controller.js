@@ -137,18 +137,20 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
   });
 };
 
-exports.sendEmailForVerified = (req, res) => {
-  const result = nodemailer({
+exports.sendEmailForVerified = (req, res, next) => {
+  nodemailer({
     "_id" : req.params.userId,
     "email" : req.body.email
-  });
-
-  res.json({
-    "result" : "SUCCESS",
-    "code" : "SEND_EMAIL",
-    "message" : result
-  });
-  return;
+  }).then(result => {
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "SEND_EMAIL",
+      "message" : result
+    });
+    return;
+  }).error(err => {
+    return next(err);
+  })
 };
 
 exports.verifyEmail = (req, res, next) => {
