@@ -75,7 +75,7 @@ exports.pushKeywordToUser = (req, res, next) => {
         const err = new Error('keywords exceeds the limit of 5');
         err.code = 'KeywordExceeded'
         return next(err);
-      }else console.log('no exceeded 5')  
+      }else console.log('no exceeded 5')
     }
 
     const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
