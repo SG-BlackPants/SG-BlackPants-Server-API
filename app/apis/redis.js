@@ -1,5 +1,5 @@
 const config = require("../../config/config"),
-      redisClient = require('redis').createClient(config.host);
+      redisClient = require('redis').createClient(config.redis);
 
 module.exports = prefix => {
   const Autocomplete = {};
