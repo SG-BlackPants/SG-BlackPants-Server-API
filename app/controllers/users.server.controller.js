@@ -33,6 +33,7 @@ exports.read = (req, res, next) => {
 exports.userByID = (req, res, next, id) => {
   User.findById(id, (err, user) => {
     if(err) return next(err);
+    console.log(user);
     req.user = user;
     next();
   });
@@ -70,13 +71,13 @@ exports.pushKeywordToUser = (req, res, next) => {
       keyword.count = 0;
     }
 
-    if(req.user.keywords){
-      if(req.user.keywords.length === 5) {
-        const err = new Error('keywords exceeds the limit of 5');
-        err.code = 'KeywordExceeded'
-        return next(err);
-      }else console.log('no exceeded 5')
-    }
+    return res.json(req.user);
+
+    if(req.user.keywords.length === 5) {
+      const err = new Error('keywords exceeds the limit of 5');
+      err.code = 'KeywordExceeded'
+      return next(err);
+    }else console.log('no exceeded 5')
 
     const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
     if(keywordUsersIndex > -1){
