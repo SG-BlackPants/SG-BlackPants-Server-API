@@ -11,7 +11,7 @@ module.exports = app => {
     .post(fb.sendEmailForVerified);
 
   app.route('/firebase/:userId/email/verify')
-    .put(fb.verifyEmail);
+    .get(fb.verifyEmail);
 
   app.route('/firebase/:userId/email/check')
     .get(fb.checkEmailVarified);

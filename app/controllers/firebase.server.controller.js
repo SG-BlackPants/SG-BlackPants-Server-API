@@ -159,10 +159,9 @@ exports.verifyEmail = (req, res, next) => {
         user.isRegistered = true;
         user.save(err => {
           if(err) next(err);
-          res.json({
-            "result" : "SUCCESS",
-            "code" : "VERIFIED",
-            "message" : user
+          res.render('emailCheck', {
+            "name" : user.name,
+            "university" : user.university
           });
           return;
         });
