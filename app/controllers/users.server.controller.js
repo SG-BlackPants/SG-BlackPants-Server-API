@@ -33,7 +33,6 @@ exports.read = (req, res, next) => {
 exports.userByID = (req, res, next, id) => {
   User.findById(id, (err, user) => {
     if(err) return next(err);
-    console.log(user);
     req.user = user;
     next();
   });

@@ -113,15 +113,15 @@ const config = require('../../config/config'),
             "result" : "SUCCESS",
             "code" : isFound,
             "message" : resp.hits.hits
-          }
+          };
           resolve(result);
         }, err => {
-            const result = {
+            const error = {
               "result" : "ERROR",
               "code" : err.code,
               "message" : err
             };
-            reject(result);
+            reject(error);
           });
       });
     };
