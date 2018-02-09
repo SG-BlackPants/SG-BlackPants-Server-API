@@ -2,8 +2,7 @@ const express = require('express'),
       morgan = require('morgan'),
       compress = require('compression'),
       bodyParser = require('body-parser'),
-      methodOverride = require('method-override'),
-      path = require('path');
+      methodOverride = require('method-override');
 
 module.exports = () => {
   const app = express();
@@ -28,9 +27,9 @@ module.exports = () => {
   require('../app/routes/keywords.server.routes.js')(app);
   require('../app/routes/articles.server.routes.js')(app);
   require('../app/routes/firebase.server.routes.js')(app);
+
+  app.use(express.static('./public'));
   require('./error_handler.js')(app);
 
-  app.use(express.static(path.join(__dirname, 'public')));
-
   return app;
-}
+};

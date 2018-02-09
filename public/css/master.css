@@ -1,4 +1,6 @@
 body {
+    text-align: center;
+    padding: 2rem;
     font: 16px 'Helvetica Neue', Helvetica, Arial, sans-serif;
   	line-height: 1.4em;
   	background: #f5f5f5;
@@ -13,7 +15,6 @@ body {
 
 #infoTxt {
   padding-top :3rem;
-  padding-bottom :3rem;
 	font: 20px 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.4em;
 }

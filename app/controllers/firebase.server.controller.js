@@ -1,4 +1,3 @@
-
 const fcmPush = require('../apis/firebase'),
       elasticsearch = require('../apis/elasticsearch'),
       Keyword = require('mongoose').model('Keyword'),
