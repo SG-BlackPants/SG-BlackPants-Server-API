@@ -6,11 +6,14 @@ const nodemailer = require('nodemailer'),
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
+  host: config.nodemailer_host,
+  port: config.nodemailer_port,
   auth: {
-    host: config.nodemailer_host,
-    port: config.nodemailer_port,
     user: account.google_email,
     pass: account.google_password
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
