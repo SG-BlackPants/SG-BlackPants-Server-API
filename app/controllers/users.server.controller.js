@@ -70,8 +70,6 @@ exports.pushKeywordToUser = (req, res, next) => {
       keyword.count = 0;
     }
 
-    return res.json(req.user);
-
     if(req.user.keywords.length === 5) {
       const err = new Error('keywords exceeds the limit of 5');
       err.code = 'KeywordExceeded'
@@ -90,7 +88,10 @@ exports.pushKeywordToUser = (req, res, next) => {
 
     keyword.save((err, data) => {
       if(err) return next(err);
-      req.user.keywords.push(data._id);
+      req.user.keywords.push({
+        "keyword" : data.name,
+        "community" : data.community
+      });
       req.user.save(err => {    //user update function with keywords push
         if(err) return next(err);
         res.json({
@@ -176,19 +177,17 @@ exports.popKeyword = (req, res, next) => {
         keyword.save(err => {
           if(err) return next(err);
         });
-        User.findById(req.params.userId)
-          .exec((err, user) => {
-            if(err) return next(err);
-            const keywordIndex = user.keywords.indexOf(keyword._id);
-            user.keywords.splice(keywordIndex, 1);
-            user.save(err => {
+        
+        User.findByIdAndUpdate(req.params.userId,
+          { $pop : { keywords : { keyword : req.body.keyword, community : req.body.community } } },
+          {safe : true, upsert: true},
+          (err, user) => {
               if(err) return next(err);
               res.json({
                 "result" : "SUCCESS",
                 "code" : "DELETE_KEYWORD",
                 "message" : "success to delete keyword from user"
-              });
-            });
+              })
           });
       });
 };

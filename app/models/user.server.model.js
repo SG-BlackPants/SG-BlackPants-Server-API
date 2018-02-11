@@ -34,8 +34,8 @@ const UserSchema = new Schema({
   },
   keywords : {
     type : [{
-      type : Schema.Types.ObjectId,
-      ref : 'Keyword'
+      keyword : String,
+      community : String
     }]
   },
   community : [{
