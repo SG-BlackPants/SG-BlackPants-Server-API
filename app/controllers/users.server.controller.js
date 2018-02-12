@@ -177,9 +177,9 @@ exports.popKeyword = (req, res, next) => {
         keyword.save(err => {
           if(err) return next(err);
         });
-        
+
         User.findByIdAndUpdate(req.params.userId,
-          { $pop : { keywords : { keyword : req.body.keyword, community : req.body.community } } },
+          { $pull : { keywords : { keyword : req.body.keyword, community : req.body.community } } },
           {safe : true, upsert: true},
           (err, user) => {
               if(err) return next(err);

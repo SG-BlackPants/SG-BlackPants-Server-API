@@ -20,7 +20,7 @@ exports.list = (req, res, next) => {
 exports.read = (req, res, next) => {
   const query = {
     "index" : "univscanner",
-    "type" : "article",
+    "type" : "articles",
     "body" : { "query" : {
                   "bool" : {
                     "must" : [
@@ -103,7 +103,7 @@ exports.deleteAll = (req, res, next) => {
 exports.searchArticlesByKeyword = (req, res, next) => {
   const query = {
     "index" : "univscanner",
-    "type" : "article",
+    "type" : "articles",
     "body" : { "query" : {
                   "bool" : {
                     "should" : [
@@ -123,7 +123,7 @@ exports.searchArticlesByKeyword = (req, res, next) => {
         res.json({
           "result" : "SUCCESS",
           "code" : "Search",
-          "message" : result._source
+          "message" : result.message
         });
       }).error(err => {
         console.log('error from searchArticlesByKeyword: ' + err);
