@@ -11,7 +11,7 @@ module.exports = app => {
     .delete(users.delete);
 
   app.route('/users/:userId/search')
-    .put(users.addSearchHistoryToUser);
+    .put(users.addSearchHistory);
 
   app.route('/users/:userId/keyword/push')
     .put(users.pushKeywordToUser)

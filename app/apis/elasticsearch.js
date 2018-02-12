@@ -114,7 +114,7 @@ const config = require('../../config/config'),
             "code" : isFound,
             "message" : resp.hits.hits
           };
-          console.log("resp: " + resp);
+          console.log("keyword: "+ query.body.query.bool.must[1] +" resp: " + resp.hits);
           resolve(result);
         }, err => {
             const error = {

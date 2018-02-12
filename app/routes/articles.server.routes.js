@@ -1,4 +1,5 @@
-const articles = require('../../app/controllers/articles.server.controller');
+const articles = require('../../app/controllers/articles.server.controller'),
+      users = require('../../app/controllers/users.server.controller');
 
 module.exports = app => {
   app.route('/articles')
@@ -7,7 +8,7 @@ module.exports = app => {
   .delete(articles.deleteAll);
 
   app.route('/articles/:keyword')
-    .get(articles.searchArticlesByKeyword);
+    .post(users.isValidToken, users.addSearchHistoryAndNext, articles.searchArticlesByKeyword);
 
   app.route('/articles/:community/:boardAddr')
   .get(articles.read)

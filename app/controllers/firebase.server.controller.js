@@ -1,9 +1,11 @@
 const fcmPush = require('../apis/firebase'),
       elasticsearch = require('../apis/elasticsearch'),
-      Keyword = require('mongoose').model('Keyword'),
-      User = require('mongoose').model('User'),
+      mongoose = require('mongoose'),
+      Keyword = mongoose.model('Keyword'),
+      User = mongoose.model('User'),
       Promise = require('bluebird'),
-      nodemailer = require('../apis/nodemailer');
+      nodemailer = require('../apis/nodemailer'),
+      redis = require('../apis/redis');
 
 exports.pushTest = (req, res, next) => {
   const result = fcmPush.sendMessageTest(req.body, res, next);
@@ -64,7 +66,7 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
   return new Promise((resolve, reject) => {
     const query = {
       "index" : "univscanner",
-      "type": "article",
+      "type": "articles",
       "body": {
                 "query" : {
                   "bool" : {
@@ -120,6 +122,7 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
               fcmPush.sendMessageToClient(data);
+              redis.updateItem(user + 'Push', data.keyword+'='+data.community+'='+data.boardAddr, Date.now());
             });
           });
         }
@@ -131,6 +134,38 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
         "result" : "SUCCESS",
         "code" : "PushDone",
         "message" : "Success to push messages"
+      });
+    }
+  });
+};
+
+exports.getPushHistory = (req, res, next) => {
+  redis.getRank(req.body._id+'Push').then(histories => {
+    if(histories[0]){
+      let jobCount = 0;
+      const result = [];
+
+      histories.forEach(history => {
+        const strArr = history.split('=');
+        result.push({
+          "keyword" : strArr[0],
+          "community" : strArr[1],
+          "boardAddr" : strArr[2]
+        });
+
+        if(histories.length === ++jobCount){
+          res.json({
+            "result" : "SUCCESS",
+            "code" : "PUSH_HISTORY",
+            "message" : result
+          });
+        }
+      });
+    }else{
+      res.json({
+        "result" : "FAILURE",
+        "code" : "PUSH_HISTORY",
+        "message" : "empty"
       });
     }
   });

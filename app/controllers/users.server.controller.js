@@ -39,7 +39,7 @@ exports.userByID = (req, res, next, id) => {
   });
 };
 
-exports.addSearchHistoryToUser = (req, res, next) => {
+exports.addSearchHistory = (req, res, next) => {
   const searchIndex = req.user.search.indexOf(req.body.search);
   if(searchIndex > -1){ //중복이 존재한다면 갱신
     req.user.search.splice(searchIndex, 1);
@@ -55,8 +55,26 @@ exports.addSearchHistoryToUser = (req, res, next) => {
       "result" : "SUCCESS",
       "code" : "ADD_SEARCH_HISTORY",
       "message" : req.user.search
-    })
+    });
   })
+};
+
+exports.addSearchHistoryAndNext = (req, res, next) => {
+  User.findById(req.body._id, (err, user) => {
+    const searchIndex = user.search.indexOf(req.params.keyword);
+    if(searchIndex > -1){ //중복이 존재한다면 갱신
+      user.search.splice(searchIndex, 1);
+    }
+    if(user.search.length === 10){ //10개 이상시 마지막 원소 제거
+      user.search.pop();
+    }
+    user.search.unshift(req.params.keyword);
+
+    user.save(err => {
+      if(err) return next(err);
+      next();
+    });
+  });
 };
 
 exports.pushKeywordToUser = (req, res, next) => {

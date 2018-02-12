@@ -1,4 +1,5 @@
 const Article = require('mongoose').model('Article'),
+      User = require('mongoose').model('User'),
       elasticsearch = require('../apis/elasticsearch');
 
 exports.create = (req, res, next) => {
