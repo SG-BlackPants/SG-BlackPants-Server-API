@@ -114,7 +114,7 @@ exports.pushKeywordToUser = (req, res, next) => {
         next(err);
       });
 
-    for(let wait = 0 ; wait < 1000 ; wait++){
+    for(let wait = 0 ; wait < 10000 ; wait++){
       if(saveCount === 3){
         return res.json({
           "result" : "SUCCESS",
@@ -228,7 +228,7 @@ exports.popKeyword = (req, res, next) => {
               saveCount++;
           });
 
-          for(let wait=0 ; wait < 1000 ; wait++){
+          for(let wait=0 ; wait < 10000 ; wait++){
             if(saveCount === 3){
               return res.json({
                 "result" : "SUCCESS",
