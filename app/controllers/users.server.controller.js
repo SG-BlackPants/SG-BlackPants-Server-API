@@ -92,43 +92,44 @@ exports.pushKeywordToUser = (req, res, next) => {
       "community" : req.body.keyword_community
     });
 
-    let saveCount = 0;
+    let isSucceeded = true;
 
     req.user.save(err => {    //user update function with keywords push
-      if(err) return next(err);
+      if(err) {
+        isSucceeded = false;
+        return next(err);
+      }
       console.log('user updated');
-      saveCount++;
+      if(isSucceeded){
+        res.json({
+              "result" : "SUCCESS",
+              "code" : "PUSH_KEYWORD",
+              "message" : "success to push keyword and updated all"
+            });
+      }else{
+        res.json({
+            "result" : "FAILURE",
+            "code" : "PUSH_KEYWORD",
+            "message" : "something is wrong"
+          });
+      }
     });
 
     keyword.save((err, data) => {
-      if(err) return next(err);
+      if(err) {
+        isSucceeded = false;
+        return next(err);
+      }
       console.log('keyword updated');
-      saveCount++;
     });
 
     redis.updateItem(req.body.keyword_university + "Keywords", req.body.keyword, 1)
       .then(reply => {
         console.log('redis updated');
-        saveCount++;
       }).error(err => {
+        isSucceeded = false;
         next(err);
       });
-
-    for(let wait = 0 ; wait < 10000 ; wait++){
-      if(saveCount === 3){
-        return res.json({
-          "result" : "SUCCESS",
-          "code" : "PUSH_KEYWORD",
-          "message" : "success to push keyword and updated all"
-        });
-      }
-    }
-
-    res.json({
-      "result" : "FAILURE",
-      "code" : "PUSH_KEYWORD",
-      "message" : (3-saveCount) + "개가 저장에 실패하였습니다."
-    });
   });
 };
 
@@ -228,7 +229,7 @@ exports.popKeyword = (req, res, next) => {
               saveCount++;
           });
 
-          for(let wait=0 ; wait < 10000 ; wait++){
+          for(let wait=0 ; wait < 10000000 ; wait++){
             if(saveCount === 3){
               return res.json({
                 "result" : "SUCCESS",
