@@ -112,7 +112,7 @@ const config = require('../../config/config'),
           const result = {
             "result" : "SUCCESS",
             "code" : isFound,
-            "message" : resp
+            "message" : resp.hits.hits
           };
           console.log("resp: " + resp);
           resolve(result);
