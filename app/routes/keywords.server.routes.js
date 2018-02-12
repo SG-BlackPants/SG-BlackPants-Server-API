@@ -6,8 +6,8 @@ module.exports = app => {
   .get(keywords.list)
   .delete(keywords.deleteAll);
 
-  app.route('/keywords/popular/:university')
-    .get(keywords.getPopularKeywords);
+  app.route('/keywords/rank/:university')
+    .get(keywords.getKeywordsRankByRedis);
 
   app.route('/keywords/:community/:name')
   .get(keywords.read)

@@ -27,6 +27,7 @@ module.exports = () => {
   require('../app/routes/keywords.server.routes.js')(app);
   require('../app/routes/articles.server.routes.js')(app);
   require('../app/routes/firebase.server.routes.js')(app);
+  require('../app/routes/redis.server.routes.js')(app);
 
   app.use(express.static('./public'));
   require('./error_handler.js')(app);

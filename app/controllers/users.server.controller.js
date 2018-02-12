@@ -3,7 +3,8 @@ const User = require('mongoose').model('User'),
       Keyword = require('mongoose').model('Keyword'),
       crypto= require('crypto'),
       config = require('../../config/config'),
-      firebase = require('../apis/firebase');
+      firebase = require('../apis/firebase'),
+      redis = require('../apis/redis');
 
 exports.signup = (req, res, next) => {
   const user = new User(req.body);
@@ -86,20 +87,47 @@ exports.pushKeywordToUser = (req, res, next) => {
     keyword.count = keyword.count + 1;
     keyword.users.push(req.user._id);
 
+    req.user.keywords.push({
+      "keyword" : req.body.keyword,
+      "community" : req.body.keyword_community
+    });
+
+    let saveCount = 0;
+
+    req.user.save(err => {    //user update function with keywords push
+      if(err) return next(err);
+      console.log('user updated');
+      saveCount++;
+    });
+
     keyword.save((err, data) => {
       if(err) return next(err);
-      req.user.keywords.push({
-        "keyword" : data.name,
-        "community" : data.community
+      console.log('keyword updated');
+      saveCount++;
+    });
+
+    redis.updateItem(req.body.keyword_university + "Keywords", req.body.keyword, 1)
+      .then(reply => {
+        console.log('redis updated');
+        saveCount++;
+      }).error(err => {
+        next(err);
       });
-      req.user.save(err => {    //user update function with keywords push
-        if(err) return next(err);
-        res.json({
+
+    for(let wait = 0 ; wait < 1000 ; wait++){
+      if(saveCount === 3){
+        return res.json({
           "result" : "SUCCESS",
-          "code" : "ADD_KEYWORD_TO_USER",
-          "message" : req.user.keywords
+          "code" : "PUSH_KEYWORD",
+          "message" : "success to push keyword and updated all"
         });
-      });
+      }
+    }
+
+    res.json({
+      "result" : "FAILURE",
+      "code" : "PUSH_KEYWORD",
+      "message" : (3-saveCount) + "개가 저장에 실패하였습니다."
     });
   });
 };
@@ -174,20 +202,46 @@ exports.popKeyword = (req, res, next) => {
         const userIndex = keyword.users.indexOf(req.params.userId);
         keyword.users.splice(userIndex, 1);
         keyword.count = keyword.count - 1;
+
+        const saveCount = 0;
+
         keyword.save(err => {
           if(err) return next(err);
+          console.log('keyword updated');
+          saveCount++;
         });
+
+        redis.updateItem(keyword.university+"Keywords", keyword,name, -1)
+          .then(reply => {
+            console.log('redis updated');
+            saveCount++;
+          }).error(err => {
+            next(err);
+          });
 
         User.findByIdAndUpdate(req.params.userId,
           { $pull : { keywords : { keyword : req.body.keyword, community : req.body.community } } },
           {safe : true, upsert: true},
           (err, user) => {
               if(err) return next(err);
-              res.json({
+              console.log('user updated');
+              saveCount++;
+          });
+
+          for(let wait=0 ; wait < 1000 ; wait++){
+            if(saveCount === 3){
+              return res.json({
                 "result" : "SUCCESS",
                 "code" : "DELETE_KEYWORD",
                 "message" : "success to delete keyword from user"
-              })
+              });
+            }
+          }
+
+          res.json({
+            "result" : "FAILURE",
+            "code" : "DELETE_KEYWORD",
+            "message" : (3-saveCount) + "개가 저장에 실패했습니다."
           });
       });
 };
