@@ -1,5 +1,6 @@
 const Keyword = require('mongoose').model('Keyword'),
-      elasticsearch = require('../apis/elasticsearch');
+      elasticsearch = require('../apis/elasticsearch'),
+      redis = require('../apis/redis');
 
 exports.create = (req, res, next) => {
   const keyword = new Keyword(req.body);
@@ -75,7 +76,19 @@ exports.deleteAll = (req, res, next) => {
   });
 };
 
-exports.getPopularKeywords = (req, res, next) => {
+exports.getKeywordsRankByRedis = (req, res, next) => {
+  redis.getRank(req.params.university+'Keywords').then(reply => {
+    res.json({
+      "result" : "SUCCESS",
+      "code" : "GET_KEYWORD_RANK",
+      "message" : reply
+    });
+  }).error(err => {
+    next(err);
+  });
+};
+
+exports.getKeywordsRankByES = (req, res, next) => {
   const query = {
     "index" : "univscanner",
     "type" : "keywords",
