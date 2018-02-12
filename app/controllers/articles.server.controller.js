@@ -1,6 +1,7 @@
 const Article = require('mongoose').model('Article'),
       User = require('mongoose').model('User'),
-      elasticsearch = require('../apis/elasticsearch');
+      elasticsearch = require('../apis/elasticsearch'),
+      redis = require('../apis/redis');
 
 exports.create = (req, res, next) => {
   const article = new Article(req.body);
@@ -121,13 +122,36 @@ exports.searchArticlesByKeyword = (req, res, next) => {
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
-        res.json({
-          "result" : "SUCCESS",
-          "code" : "Search",
-          "message" : result.message
-        });
+        if(result.message[0]){
+          addKeywordForAutoComplete(req.body.university, req.params.keyword);
+
+          res.json({
+            "result" : "SUCCESS",
+            "code" : "Search",
+            "message" : result.message
+          });
+        }else{
+          res.json({
+            "result" : "FAILURE",
+            "code" : "Search",
+            "message" : "empty"
+          });
+        }
       }).error(err => {
         console.log('error from searchArticlesByKeyword: ' + err);
         next(err);
       });
+};
+
+function addKeywordForAutoComplete(university, keyword){
+  redis.addKeyword(university, keyword)
+    .then(reply => {
+      return res.json({
+        "result" : "SUCCESS",
+        "code" : "ADD_AUTOCOMPLETE",
+        "message" : university + ' : ' + keyword
+      });
+    }).erro(err => {
+      next(err);
+    });
 };

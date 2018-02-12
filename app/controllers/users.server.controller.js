@@ -40,14 +40,15 @@ exports.userByID = (req, res, next, id) => {
 };
 
 exports.addSearchHistory = (req, res, next) => {
-  const searchIndex = req.user.search.indexOf(req.body.search);
+  const search = req.body.search.trim();
+  const searchIndex = req.user.search.indexOf(search);
   if(searchIndex > -1){ //중복이 존재한다면 갱신
     req.user.search.splice(searchIndex, 1);
   }
   if(req.user.search.length === 10){ //10개 이상시 마지막 원소 제거
     req.user.search.pop();
   }
-  req.user.search.unshift(req.body.search);
+  req.user.search.unshift(search);
 
   req.user.save(err => {
     if(err) return next(err);
@@ -61,6 +62,7 @@ exports.addSearchHistory = (req, res, next) => {
 
 exports.addSearchHistoryAndNext = (req, res, next) => {
   User.findById(req.body._id, (err, user) => {
+    req.body.university = user.university;
     const searchIndex = user.search.indexOf(req.params.keyword);
     if(searchIndex > -1){ //중복이 존재한다면 갱신
       user.search.splice(searchIndex, 1);
