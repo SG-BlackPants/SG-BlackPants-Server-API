@@ -112,8 +112,9 @@ const config = require('../../config/config'),
           const result = {
             "result" : "SUCCESS",
             "code" : isFound,
-            "message" : resp.hits.hits
+            "message" : resp
           };
+          console.log("resp: " + resp);
           resolve(result);
         }, err => {
             const error = {
