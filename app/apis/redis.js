@@ -88,3 +88,12 @@ exports.getRankForTest = board => {
     });
   });
 };
+
+exports.deleteAll = () => {
+  return new Promise((resolve, reject) => {
+    client.flushdb((err, succeeded) => {
+      if(err) reject(err);
+      resolve(succeeded);
+    });
+  });
+};

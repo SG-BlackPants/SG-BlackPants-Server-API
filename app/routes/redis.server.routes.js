@@ -16,4 +16,7 @@ module.exports = app => {
 
   app.route('/redis/update/search')
     .post(redis.addKeywordForAutoComplete);
+
+  app.route('/redis/delete/all')
+    .delete(redis.deleteAll);
 };

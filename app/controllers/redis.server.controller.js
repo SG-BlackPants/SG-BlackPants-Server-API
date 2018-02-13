@@ -85,3 +85,16 @@ exports.addKeywordForAutoComplete = (req, res, next) => {
       next(err);
     });
 };
+
+exports.deleteAll = (req, res, next) => {
+  redis.deleteAll()
+    .then(result => {
+      res.json({
+        "result" : "SUCCESS",
+        "code" : "DELETE_ALL",
+        "message" : "redis initialize"
+      });
+    }).error(err => {
+      next(err);
+    });
+};
