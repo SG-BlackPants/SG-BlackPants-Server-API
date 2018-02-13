@@ -41,7 +41,8 @@ exports.sendMessageTest = (data, res, next) => {
     "data" : {
       "keyword" : data.keyword,
       "community" : data.community,
-      "boardAddr" : data.boardAddr
+      "boardAddr" : data.boardAddr,
+      "createdDate" : data.createdDate
     }
   };
 

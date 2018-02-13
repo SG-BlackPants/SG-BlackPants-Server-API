@@ -23,7 +23,6 @@ const KeywordSchema = new Schema({
   usePushEach : true
 });
 
-KeywordSchema.virtual('nameCommunity').get(() => this.name + '_' + this.community);
-KeywordSchema.set('toJSON', {virtuals : true});
+KeywordSchema.set('toJSON', {virtuals : false});
 
 mongoose.model('Keyword', KeywordSchema);
