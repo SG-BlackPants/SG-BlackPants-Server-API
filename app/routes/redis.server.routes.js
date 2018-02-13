@@ -19,4 +19,7 @@ module.exports = app => {
 
   app.route('/redis/delete/all')
     .delete(redis.deleteAll);
+
+  app.route('/redis/list/all/:board')
+    .get(redis.list);
 };

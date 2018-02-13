@@ -51,7 +51,7 @@ exports.suggestKeyword = (university, prefix) => {
       if(!start) return resolve(false);
 
        client.zrange(university+'AutoComplete', start, -1, 'WITHSCORES', (err, words) => {
-        if(err) reject(err);
+        if(err) return reject(err);
         if(!words) return resolve(false);
 
         for(let index = 0; index < words.length ; index += 2){
@@ -60,9 +60,18 @@ exports.suggestKeyword = (university, prefix) => {
           if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
             results.push(value.replace('*',''));
           }
-          if(index === words.length-1) resolve(results);
+          if(index === words.length-1) return resolve(results);
         }
       });
+    });
+  });
+};
+
+exports.list = board => {
+  return new Promise((resolve, reject) => {
+    client.zrange(board, 0, -1, "WITHSCORES", (err, reply) => {
+      if(err) return reject(err);
+      return resolve(reply);
     });
   });
 };

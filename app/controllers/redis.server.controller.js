@@ -60,10 +60,10 @@ exports.getPushHistory = (req, res, next) => {
 exports.getAutocompleteKeyword = (req, res, next) => {
   redis.suggestKeyword(req.params.university, req.params.prefix)
     .then(result => {
-      if(!result) res.json({});
-      res.json(result);
+      if(!result) return res.json({});
+      return res.json(result);
     }).error(err => {
-      next(err);
+      return next(err);
     });
 };
 
@@ -98,4 +98,12 @@ exports.deleteAll = (req, res, next) => {
     }).error(err => {
       next(err);
     });
+};
+
+exports.list = (req, res, next) => {
+  redis.list(req.params.board).then(results => {
+    return res.json(results);
+  }).error(err => {
+      return next(err);
+});
 };
