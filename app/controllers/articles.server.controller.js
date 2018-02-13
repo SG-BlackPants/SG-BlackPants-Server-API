@@ -109,10 +109,12 @@ exports.searchArticlesByKeyword = (req, res, next) => {
     "body" : { "query" : {
                   "bool" : {
                     "must" : [{
-                      "should" : [
-                        { "match" : { "content" : req.params.keyword } },
-                        { "match" : { "title" : req.params.keyword } }
-                      ]
+                      "bool" :{
+                        "should" : [
+                          { "match" : { "content" : req.params.keyword } },
+                          { "match" : { "title" : req.params.keyword } }
+                        ]
+                      }
                     }]
                   }
                 },
@@ -135,11 +137,11 @@ exports.searchArticlesByKeyword = (req, res, next) => {
             "match" : { "content" : req.body.community[communityIndex] }
           });
         }
-        query.body.query.bool.must.push(communityQuery);
+        query.body.query.bool.must.bool.push(communityQuery);
     }
 
     if(req.body.startDate){
-      query.body.query.bool.must.push({
+      query.body.query.bool.must.bool.push({
             "range" : {
               "createdDate" : {
                                   "gte" : req.body.startDate,
@@ -151,7 +153,7 @@ exports.searchArticlesByKeyword = (req, res, next) => {
     }
 
     if(req.body.secondWord){
-      query.body.query.bool.must.push({
+      query.body.query.bool.must.bool.push({
         "should" : [
           { "match" : { "content" : req.body.secondWord } },
           { "match" : { "title" : req.body.secondWord } }
@@ -186,17 +188,9 @@ function addKeywordForAutoComplete(university, keyword){
   redis.addKeyword(university, keyword)
     .then(reply => {
       if(!reply){
-        return res.json({
-          "result" : "FAILURE",
-          "code" : "ADD_AUTOCOMPLETE",
-          "message" : "empty"
-        });
+        console.log("empty");
       }
-      return res.json({
-        "result" : "SUCCESS",
-        "code" : "ADD_AUTOCOMPLETE",
-        "message" : university + ' : ' + keyword
-      });
+      console.log(university + ' : ' + keyword);
     }).error(err => {
       next(err);
     });
