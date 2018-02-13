@@ -19,9 +19,6 @@ exports.findKeywordsForPush = (req, res, next) => {
                   "bool" : {
                     "must" : [
                       { "match" : { "university" : req.body.university } }
-                    ],
-                    "must_not" : [
-                      { "match" : { "count" : 0 } }
                     ]
                   }
                 }
@@ -34,7 +31,8 @@ exports.findKeywordsForPush = (req, res, next) => {
     if(keywords.result === 'SUCCESS'){
       if(!keywords.message) return;
       let jobCount = 0;
-      keywords.message.forEach((keyword) => {
+
+      keywords.message.forEach(keyword => {
         hasNewArticleByKeyword(req.body.university, keyword._source.name, req.body.createdDate)
           .then(isContained => {
             if(isContained){
@@ -44,6 +42,7 @@ exports.findKeywordsForPush = (req, res, next) => {
                 "boardAddr" : isContained.boardAddr,
                 "createdDate" : isContained.createdDate
               };
+              console.log(node);
               result.push(node);
             }
 
@@ -93,12 +92,13 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
     };
 
     elasticsearch.searchAndReturn(query).then(result => {
+      return resolve(result.message);
       const articles = result.message;
       if(articles[0]) {
-        resolve(articles[0]._source);
+        return resolve(articles[0]._source);
       }
       else {
-        resolve(false);
+        return resolve(false);
       }
     }).error(err => {
       console.log("I'm unhandled error in hasNewArticleByKeyword: " + err);

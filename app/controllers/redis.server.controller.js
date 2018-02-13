@@ -26,9 +26,9 @@ exports.getKeywordRank = (req, res, next) => {
 
 exports.getPushHistory = (req, res, next) => {
   redis.getRank(req.body._id+'Push').then(histories => {
+    console.log(histories);
     if(histories[0]){
       let jobCount = 0;
-      const result = [];
 
       histories.forEach(history => {
         const strArr = history.split('=');
@@ -51,7 +51,7 @@ exports.getPushHistory = (req, res, next) => {
       res.json({
         "result" : "FAILURE",
         "code" : "PUSH_HISTORY",
-        "message" : "empty"
+        "message" : []
       });
     }
   });
