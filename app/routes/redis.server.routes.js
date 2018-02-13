@@ -11,6 +11,9 @@ module.exports = app => {
   app.route('/redis/rank/push')
     .post(users.isValidToken, redis.getPushHistory);
 
-  app.route('/redis/rank/search/:university/:keyword')
+  app.route('/redis/rank/search/:university/:prefix')
     .get(redis.getAutocompleteKeyword);
+
+  app.route('/redis/update/search')
+    .post(redis.addKeywordForAutoComplete);
 };

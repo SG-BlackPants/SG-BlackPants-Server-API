@@ -64,3 +64,23 @@ exports.getAutocompleteKeyword = (req, res, next) => {
       next(err);
     });
 };
+
+exports.addKeywordForAutoComplete = (req, res, next) => {
+  redis.addKeyword(req.body.university, req.body.keyword)
+    .then(reply => {
+      if(!reply){
+        return res.json({
+          "result" : "FAILURE",
+          "code" : "ADD_AUTOCOMPLETE",
+          "message" : "empty"
+        });
+      }
+      return res.json({
+        "result" : "SUCCESS",
+        "code" : "ADD_AUTOCOMPLETE",
+        "message" : req.body.university + ' : ' + req.body.keyword
+      });
+    }).error(err => {
+      next(err);
+    });
+};
