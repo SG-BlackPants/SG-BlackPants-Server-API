@@ -45,7 +45,7 @@ exports.suggestKeyword = (university, prefix) => {
   return new Promise((resolve, reject) => {
     const results = [];
     const prefixLength = prefix.length;
-    if(null === prefix || prefixLength === 0) resolve(results);
+    if(!prefix || prefixLength === 0) resolve(results);
 
     client.zrank(university+'AutoComplete', prefix, (err, start) => {
       if(!start) return resolve(results);
@@ -57,10 +57,14 @@ exports.suggestKeyword = (university, prefix) => {
         for(let index = 0; index < words.length ; index += 2){
           const value = words[index];
           const minLength = value.length < prefixLength ? value.length : prefixLength;
-          if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
+          if(value.charAt(value.length-1) === '*' && value.indexOf(prefix) === 0){
             results.push(value.replace('*',''));
+            console.log(results);
           }
-          if(index === words.length-1) return resolve(results);
+          if(index === words.length-2) {
+            console.log('result: ' + results);
+            return resolve(results);
+          }
         }
       });
     });
