@@ -48,11 +48,11 @@ exports.suggestKeyword = (university, prefix) => {
     if(null === prefix || prefixLength === 0) resolve(results);
 
     client.zrank(university+'AutoComplete', prefix, (err, start) => {
-      if(!start) return resolve({}});
+      if(!start) return resolve(results);
 
        client.zrange(university+'AutoComplete', start, -1, 'WITHSCORES', (err, words) => {
         if(err) return reject(err);
-        if(!words) return resolve({}});
+        if(!words) return resolve(results);
 
         for(let index = 0; index < words.length ; index += 2){
           const value = words[index];
