@@ -60,9 +60,8 @@ exports.suggestKeyword = (university, prefix) => {
           if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
             results.push(value.replace('*',''));
           }
+          if(index === words.length-1) resolve(results);
         }
-
-        resolve(results);
       });
     });
   });
