@@ -14,4 +14,7 @@ module.exports = app => {
   .get(articles.read)
   .put(articles.update)
   .delete(articles.delete);
+
+  app.route('/articletest/:keyword')
+    .post(articles.searchArticlesByKeyword);
 };

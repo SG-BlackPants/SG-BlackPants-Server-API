@@ -108,10 +108,12 @@ exports.searchArticlesByKeyword = (req, res, next) => {
     "type" : "articles",
     "body" : { "query" : {
                   "bool" : {
-                    "should" : [
-                      { "match" : { "content" : req.params.keyword } },
-                      { "match" : { "title" : req.params.keyword } }
-                    ]
+                    "must" : [{
+                      "should" : [
+                        { "match" : { "content" : req.params.keyword } },
+                        { "match" : { "title" : req.params.keyword } }
+                      ]
+                    }]
                   }
                 },
                 "sort" : [
@@ -119,6 +121,43 @@ exports.searchArticlesByKeyword = (req, res, next) => {
                 ]
             }
     };
+
+    if(req.body.community){
+      let communityIndex = 0;
+      const communityQuery = {
+          "should" : [
+            { "match" : { "content" : req.body.community[communityIndex] } }
+          ]
+        };
+
+        while(req.body.community[++communityIndex]){
+          communityQuery.should.push({
+            "match" : { "content" : req.body.community[communityIndex] }
+          });
+        }
+        query.body.query.bool.must.push(communityQuery);
+    }
+
+    if(req.body.startDate){
+      query.body.query.bool.must.push({
+            "range" : {
+              "createdDate" : {
+                                  "gte" : req.body.startDate,
+                                  "lte" : req.body.endDate,
+                                  "time_zone" : "+09:00"
+                                }
+                              }
+      });
+    }
+
+    if(req.body.secondWord){
+      query.body.query.bool.must.push({
+        "should" : [
+          { "match" : { "content" : req.body.secondWord } },
+          { "match" : { "title" : req.body.secondWord } }
+        ]
+      });
+    }
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
@@ -146,12 +185,19 @@ exports.searchArticlesByKeyword = (req, res, next) => {
 function addKeywordForAutoComplete(university, keyword){
   redis.addKeyword(university, keyword)
     .then(reply => {
+      if(!reply){
+        return res.json({
+          "result" : "FAILURE",
+          "code" : "ADD_AUTOCOMPLETE",
+          "message" : "empty"
+        });
+      }
       return res.json({
         "result" : "SUCCESS",
         "code" : "ADD_AUTOCOMPLETE",
         "message" : university + ' : ' + keyword
       });
-    }).erro(err => {
+    }).error(err => {
       next(err);
     });
 };

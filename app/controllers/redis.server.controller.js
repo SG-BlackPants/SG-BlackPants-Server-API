@@ -35,7 +35,8 @@ exports.getPushHistory = (req, res, next) => {
         result.push({
           "keyword" : strArr[0],
           "community" : strArr[1],
-          "boardAddr" : strArr[2]
+          "boardAddr" : strArr[2],
+          "createdDate" : strArr[3]
         });
 
         if(histories.length === ++jobCount){

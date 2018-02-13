@@ -18,7 +18,7 @@ exports.findKeywordsForPush = (req, res, next) => {
     "body" : { "query" : {
                   "bool" : {
                     "must" : [
-                      { "match" : { "community" : req.body.community } }
+                      { "match" : { "university" : req.body.university } }
                     ],
                     "must_not" : [
                       { "match" : { "count" : 0 } }
@@ -35,12 +35,14 @@ exports.findKeywordsForPush = (req, res, next) => {
       if(!keywords.message) return;
       let jobCount = 0;
       keywords.message.forEach((keyword) => {
-        hasNewArticleByKeyword(req.body.community, keyword._source.name, req.body.createdDate)
+        hasNewArticleByKeyword(req.body.university, keyword._source.name, req.body.createdDate)
           .then(isContained => {
             if(isContained){
               const node = {
                 "keyword" : keyword._source.name,
-                "boardAddr" : isContained
+                "community" : isContained.community,
+                "boardAddr" : isContained.boardAddr,
+                "createdDate" : isContained.createdDate
               };
               result.push(node);
             }
@@ -62,7 +64,7 @@ exports.findKeywordsForPush = (req, res, next) => {
   });
 };
 
-function hasNewArticleByKeyword(community, keyword, createdDate){
+function hasNewArticleByKeyword(university, keyword, createdDate){
   return new Promise((resolve, reject) => {
     const query = {
       "index" : "univscanner",
@@ -71,7 +73,7 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
                 "query" : {
                   "bool" : {
                     "must" : [
-                      { "match" : { "community" : community } },
+                      { "match" : { "university" : university } },
                       { "match" : { "content" : keyword } },
                       { "range" : { "createdDate" : {
                                               "gte" : createdDate,
@@ -83,7 +85,7 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
                     ]
                   }
                 },
-                "_source": ["boardAddr", "createdDate"],
+                "_source": ["community", "boardAddr", "createdDate"],
                 "sort" : [
                   { "createdDate" : { "order" : "desc" } }
                 ]
@@ -93,7 +95,7 @@ function hasNewArticleByKeyword(community, keyword, createdDate){
     elasticsearch.searchAndReturn(query).then(result => {
       const articles = result.message;
       if(articles[0]) {
-        resolve(articles[0]._source.boardAddr);
+        resolve(articles[0]._source);
       }
       else {
         resolve(false);
@@ -110,11 +112,12 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
   req.body.keywords.forEach((node) => {
     const data = {
       "keyword" : node.keyword,
-      "community" : req.body.community,
-      "boardAddr" : node.boardAddr
+      "community" : node.community,
+      "boardAddr" : node.boardAddr,
+      "createdDate" : node.createdDate
     };
 
-    Keyword.findOne({name : node.keyword, community : req.body.community}, (err, keyword) => {
+    Keyword.findOne({name : node.keyword, university : req.body.university}, (err, keyword) => {
       if(err) console.log(err);
       else{
         if(keyword){
@@ -122,7 +125,7 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
               fcmPush.sendMessageToClient(data);
-              redis.updateItem(user + 'Push', data.keyword+'='+data.community+'='+data.boardAddr, Date.now());
+              redis.updateItem(user + 'Push', data.keyword+'='+data.community+'='+data.boardAddr+'='+data.createdDate, Date.now());
             });
           });
         }

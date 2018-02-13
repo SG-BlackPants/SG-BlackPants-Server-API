@@ -80,15 +80,14 @@ exports.addSearchHistoryAndNext = (req, res, next) => {
 };
 
 exports.pushKeywordToUser = (req, res, next) => {
-  Keyword.findOne({name : req.body.keyword, community : req.body.keyword_community}, (err, keyword) => {
+  req.body.keyword = req.body.keyword.trim();
+  Keyword.findOne({name : req.body.keyword, university : req.body.university}, (err, keyword) => {
     if(err) return next(err);
 
     if(!keyword){
       keyword = new Keyword();
       keyword.name = req.body.keyword;
-      keyword.community = req.body.keyword_community;
-      keyword.university = req.body.keyword_university;
-      keyword.count = 0;
+      keyword.university = req.body.university;
     }
 
     if(req.user.keywords.length === 5) {
@@ -103,13 +102,27 @@ exports.pushKeywordToUser = (req, res, next) => {
       err.code = 'KeywordDuplicated'
       return next(err);
     }else console.log('no duplicated keyword')
-
-    keyword.count = keyword.count + 1;
     keyword.users.push(req.user._id);
+
+    let community = null,
+        startDate = null,
+        endDate = null,
+        secondWord = null;
+
+    if(req.body.community) community = req.body.community;
+    if(req.body.startDate){
+      startDate = req.body.startDate;
+      endDate = req.body.endDate;
+    }
+    if(req.body.secondWord) secondWord = req.body.secondWord;
 
     req.user.keywords.push({
       "keyword" : req.body.keyword,
-      "community" : req.body.keyword_community
+      "university" : req.body.university,
+      "community" : community,
+      "startDate" : startDate,
+      "endDate" : endDate,
+      "secondWord" : secondWord
     });
 
     let isSucceeded = true;
@@ -222,7 +235,6 @@ exports.popKeyword = (req, res, next) => {
       .exec((err, keyword) => {
         const userIndex = keyword.users.indexOf(req.params.userId);
         keyword.users.splice(userIndex, 1);
-        keyword.count = keyword.count - 1;
 
         const saveCount = 0;
 
@@ -241,7 +253,7 @@ exports.popKeyword = (req, res, next) => {
           });
 
         User.findByIdAndUpdate(req.params.userId,
-          { $pull : { keywords : { keyword : req.body.keyword, community : req.body.community } } },
+          { $pull : { keywords : { keyword : req.body.keyword, university : req.body.university } } },
           {safe : true, upsert: true},
           (err, user) => {
               if(err) return next(err);

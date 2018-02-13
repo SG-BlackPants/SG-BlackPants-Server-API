@@ -6,10 +6,6 @@ const KeywordSchema = new Schema({
     type : String,
     required : 'keyword is required'
   },
-  community : {
-    type : String,
-    required : 'community is required'
-  },
   university : {
     type : String,
     required : 'university is required'
