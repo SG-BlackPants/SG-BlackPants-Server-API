@@ -22,7 +22,7 @@ exports.updateItem = (board, keyword, count) => {
 exports.addKeyword = (university, keyword) => {
   return new Promise((resolve, reject) => {
     keyword = keyword.trim();
-    client.zincrby(university+'AutoComplete', 1, keyword+'*', (err, reply) => {
+    client.zadd(university+'AutoComplete', 0, keyword+'*', (err, reply) => {
       if(err) console.log(err);
       else{
           console.log('saved: ' + keyword+'*');
