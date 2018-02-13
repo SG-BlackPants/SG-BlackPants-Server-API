@@ -27,9 +27,16 @@ exports.findKeywordsForPush = (req, res, next) => {
 
   elasticsearch.searchAndReturn(query).then(keywords => {
     let result = [];
-
+    
     if(keywords.result === 'SUCCESS'){
-      if(!keywords.message) return;
+      if(keywords.code === "NotFound"){
+        return res.json({
+          "result" : keywords.result,
+          "code" : keywords.code,
+          "message" : "It has no keyword push for users"
+        });
+      }
+
       let jobCount = 0;
 
       keywords.message.forEach(keyword => {
@@ -38,11 +45,10 @@ exports.findKeywordsForPush = (req, res, next) => {
             if(isContained){
               const node = {
                 "keyword" : keyword._source.name,
-                "community" : isContained.community,
-                "boardAddr" : isContained.boardAddr,
-                "createdDate" : isContained.createdDate
+                "community" : isContained.community ? isContained.community : null,
+                "boardAddr" : isContained.boardAddr ? isContained.boardAddr : null,
+                "createdDate" : isContained.createdDate ? isContained.createdDate : null
               };
-              console.log(node);
               result.push(node);
             }
 
@@ -52,10 +58,16 @@ exports.findKeywordsForPush = (req, res, next) => {
             }
           }).error(err => {
             console.log("unhandled error in hasNewArticleByKeyword: " + err);
+            next(err);
           });
       });
     }else if(keywords.result === 'ERROR'){
-      return res.json(keywords);
+      console.log('empty keyword');
+      return res.json({
+        "result" : "ERROR",
+        "code" : "SEARCH_ES",
+        "message" : "elasticsearch search query has errors"
+      });
     }
   }).error(err => {
     console.log("I'm unhandled error in findKeywords: " + err);
@@ -109,6 +121,8 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
 
 exports.findUserByKeywordAndPush = (req, res, next) => {
   let jobCount = 0;
+  let pushCount = 0;
+
   req.body.keywords.forEach((node) => {
     const data = {
       "keyword" : node.keyword,
@@ -125,7 +139,8 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
               fcmPush.sendMessageToClient(data);
-              redis.updateItem(user + 'Push', data.keyword+'='+data.community+'='+data.boardAddr+'='+data.createdDate, Date.now());
+              pushCount++;
+              redis.updateItem(user + ':push', data.keyword+'='+data.community+'='+data.boardAddr+'='+data.createdDate, Date.now());
             });
           });
         }
@@ -135,8 +150,8 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
     if(req.body.keywords.length === ++jobCount){
       return res.json({
         "result" : "SUCCESS",
-        "code" : "PushDone",
-        "message" : "Success to push messages"
+        "code" : "PUSH_DONE",
+        "message" : "success to push messages("+pushCount+")"
       });
     }
   });

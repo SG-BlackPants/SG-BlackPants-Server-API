@@ -107,13 +107,14 @@ const config = require('../../config/config'),
       return new Promise((resolve, reject) => {
         elasticClient.search(query).then(resp => {
           let isFound = 'NotFound';
-          if(resp.hits.hits) isFound = 'Found'
+          if(resp.hits.hits[0]) isFound = 'Found'
 
           const result = {
             "result" : "SUCCESS",
             "code" : isFound,
             "message" : resp.hits.hits
           };
+          console.log(result);
           resolve(result);
         }, err => {
             const error = {

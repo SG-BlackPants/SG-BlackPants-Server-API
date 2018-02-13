@@ -19,18 +19,18 @@ exports.updateItem = (board, keyword, count) => {
   });
 };
 
+//TEST필요
 exports.addKeyword = (university, keyword) => {
   return new Promise((resolve, reject) => {
     keyword = keyword.trim();
-    client.zadd(university+'AutoComplete', 0, keyword+'*', (err, reply) => {
+    const key = university+':autocomplete:'+keyword.charAt(0)+':'+keyword.length;
+    client.zadd(key, 0, keyword+'*', (err, reply) => {
       if(err) console.log(err);
       else{
-          console.log('saved: ' + keyword+'*');
           for(let index = 1 ; index < keyword.length ; index++){
             const prefix = keyword.substring(0, index);
-            client.zadd(university+'AutoComplete', 0, prefix, (err, reply) => {
+            client.zadd(key, 0, prefix, (err, reply) => {
               if(err) reject(err);
-              console.log('saved: ' + prefix);
 
               if(index === keyword.length-1)
                 resolve(true);
@@ -41,31 +41,33 @@ exports.addKeyword = (university, keyword) => {
   });
 };
 
+//TEST필요
 exports.suggestKeyword = (university, prefix) => {
   return new Promise((resolve, reject) => {
     const results = [];
     const prefixLength = prefix.length;
-    if(prefix === null || prefixLength === 0) resolve(results);
+    if(prefix === null || prefixLength === 0) return resolve(results);
 
-    client.zrank(university+'AutoComplete', prefix, (err, start) => {
-      if(start === null) return resolve(results);
+    for(let len = prefixLength ; len <= 30 ; len++){
+      const key = university+':autocomplete:'+prefix.charAt(0)+':'+len;
+      client.zrank(key, prefix, (err, start) => {
+        if(start === null) return;
+         client.zrange(key, start, -1, (err, words) => {
+          if(err) reject(err);
+          if(words === null) return;
 
-       client.zrange(university+'AutoComplete', start, -1, 'WITHSCORES', (err, words) => {
-        if(err) return reject(err);
-        if(words === null) return resolve(results);
-
-        for(let index = 0; index < words.length ; index += 2){
-          const value = words[index];
-          const minLength = value.length < prefixLength ? value.length : prefixLength;
-          if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
-            results.push(value.replace('*',''));
+          for(let index = 0; index < words.length ; index++){
+            const minLength = value.length < prefixLength ? value.length : prefixLength;
+            if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
+              results.push(value.replace('*',''));
+            }
+            if(index === words.length-1 && len === 30) {
+              return resolve(results);
+            }
           }
-          if(index === words.length-2) {
-            return resolve(results);
-          }
-        }
+        });
       });
-    });
+    }
   });
 };
 

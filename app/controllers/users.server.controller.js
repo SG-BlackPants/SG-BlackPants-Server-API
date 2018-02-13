@@ -156,7 +156,8 @@ exports.pushKeywordToUser = (req, res, next) => {
       console.log('keyword updated');
     });
 
-    redis.updateItem(req.body.keyword_university + "Keywords", req.body.keyword, 1)
+    const key = req.body.university+":keywords";
+    redis.updateItem(key, req.body.keyword, 1)
       .then(reply => {
         console.log('redis updated');
       }).error(err => {

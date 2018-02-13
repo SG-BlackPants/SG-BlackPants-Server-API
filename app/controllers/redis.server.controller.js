@@ -1,7 +1,8 @@
 const redis = require('../apis/redis');
 
 exports.updateKeywordRank = (req, res, next) => {
-  redis.updateItem(req.body.university+'Keywords', req.body.keyword, req.body.count).then(reply => {
+  const key = req.body.university+":keywords";
+  redis.updateItem(key, req.body.keyword, req.body.count).then(reply => {
     res.json({
       "result" : "SUCCESS",
       "code" : "UPDATE_KEYWORD_RANK",
@@ -13,7 +14,8 @@ exports.updateKeywordRank = (req, res, next) => {
 };
 
 exports.getKeywordRank = (req, res, next) => {
-  redis.getRankForTest(req.params.university+'Keywords').then(reply => {
+  const key = req.params.university+":keywords";
+  redis.getRank(key).then(reply => {
     res.json({
       "result" : "SUCCESS",
       "code" : "GET_KEYWORD_RANK",
@@ -24,8 +26,9 @@ exports.getKeywordRank = (req, res, next) => {
   });
 };
 
+//TEST필요
 exports.getPushHistory = (req, res, next) => {
-  redis.getRank(req.body._id+'Push').then(histories => {
+  redis.getRank(req.body._id+':push').then(histories => {
     console.log(histories);
     if(histories[0]){
       let jobCount = 0;
