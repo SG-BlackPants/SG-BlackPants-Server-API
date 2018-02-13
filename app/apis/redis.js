@@ -53,7 +53,7 @@ exports.suggestKeyword = (university, prefix) => {
       client.zrank(key, prefix, (err, start) => {
         if(start === null) return;
          client.zrange(key, start, -1, (err, words) => {
-          if(err) reject(err);
+          if(err) return reject(err);
           if(words === null) return;
 
           for(let index = 0; index < words.length ; index++){

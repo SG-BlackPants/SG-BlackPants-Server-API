@@ -77,7 +77,8 @@ exports.deleteAll = (req, res, next) => {
 };
 
 exports.getKeywordsRankByRedis = (req, res, next) => {
-  redis.getRank(req.params.university+'Keywords').then(reply => {
+  const key = req.params.university+':keywords';
+  redis.getRank(key).then(reply => {
     res.json({
       "result" : "SUCCESS",
       "code" : "GET_KEYWORD_RANK",

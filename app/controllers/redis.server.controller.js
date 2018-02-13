@@ -1,7 +1,7 @@
 const redis = require('../apis/redis');
 
 exports.updateKeywordRank = (req, res, next) => {
-  const key = req.body.university+":keywords";
+const key = req.body.university+":keywords";
   redis.updateItem(key, req.body.keyword, req.body.count).then(reply => {
     res.json({
       "result" : "SUCCESS",

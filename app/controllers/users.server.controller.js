@@ -245,7 +245,7 @@ exports.popKeyword = (req, res, next) => {
           saveCount++;
         });
 
-        redis.updateItem(keyword.university+"Keywords", keyword,name, -1)
+        redis.updateItem(keyword.university+":keywords", keyword,name, -1)
           .then(reply => {
             console.log('redis updated');
             saveCount++;
