@@ -8,10 +8,6 @@ module.exports = app => {
   app.route('/firebase/new')
     .post(fb.findKeywordsForPush, fb.findUserByKeywordAndPush);
 
-  app.route('/firebase/get')
-    .post(users.isValidToken, fb.getPushHistory);
-
-
   app.route('/firebase/:userId/email/request')
     .post(fb.sendEmailForVerified);
   app.route('/firebase/:userId/email/verify')

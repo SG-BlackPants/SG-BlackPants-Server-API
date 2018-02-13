@@ -139,38 +139,6 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
   });
 };
 
-exports.getPushHistory = (req, res, next) => {
-  redis.getRank(req.body._id+'Push').then(histories => {
-    if(histories[0]){
-      let jobCount = 0;
-      const result = [];
-
-      histories.forEach(history => {
-        const strArr = history.split('=');
-        result.push({
-          "keyword" : strArr[0],
-          "community" : strArr[1],
-          "boardAddr" : strArr[2]
-        });
-
-        if(histories.length === ++jobCount){
-          res.json({
-            "result" : "SUCCESS",
-            "code" : "PUSH_HISTORY",
-            "message" : result
-          });
-        }
-      });
-    }else{
-      res.json({
-        "result" : "FAILURE",
-        "code" : "PUSH_HISTORY",
-        "message" : "empty"
-      });
-    }
-  });
-};
-
 exports.sendEmailForVerified = (req, res, next) => {
   nodemailer({
     "_id" : req.params.userId,
