@@ -108,14 +108,14 @@ exports.searchArticlesByKeyword = (req, res, next) => {
     "type" : "articles",
     "body" : { "query" : {
                   "bool" : {
-                    "must" : [{
-                      "bool" :{
+                    "must" : {
+                      "bool" : [{
                         "should" : [
                           { "match" : { "content" : req.params.keyword } },
                           { "match" : { "title" : req.params.keyword } }
                         ]
-                      }
-                    }]
+                      }]
+                    }
                   }
                 },
                 "sort" : [
@@ -142,13 +142,15 @@ exports.searchArticlesByKeyword = (req, res, next) => {
 
     if(req.body.startDate){
       query.body.query.bool.must.bool.push({
-            "range" : {
-              "createdDate" : {
-                                  "gte" : req.body.startDate,
-                                  "lte" : req.body.endDate,
-                                  "time_zone" : "+09:00"
-                                }
+        "must" : {
+          "range" : {
+            "createdDate" : {
+                                "gte" : req.body.startDate,
+                                "lte" : req.body.endDate,
+                                "time_zone" : "+09:00"
                               }
+                            }
+        }
       });
     }
 
@@ -160,6 +162,8 @@ exports.searchArticlesByKeyword = (req, res, next) => {
         ]
       });
     }
+
+    return res.json(query);
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
