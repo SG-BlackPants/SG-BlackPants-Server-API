@@ -58,10 +58,7 @@ exports.suggestKeyword = (university, prefix) => {
           const value = words[index];
           const minLength = value.length < prefixLength ? value.length : prefixLength;
           if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
-            results.push({
-              "keyword" : value.replace('*',''),
-              "score" : words[index+1]
-            });
+            results.push(value.replace('*',''));
           }
         }
 
