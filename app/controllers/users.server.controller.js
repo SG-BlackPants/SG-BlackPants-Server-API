@@ -34,7 +34,8 @@ exports.read = (req, res, next) => {
 exports.userByID = (req, res, next, id) => {
   User.findById(id, (err, user) => {
     if(err) return next(err);
-    req.user = user;
+    if(!user) req.user = null;
+    else req.user = user;
     next();
   });
 };
@@ -228,7 +229,8 @@ exports.refreshToken = (req, res, next) => {
 };
 
 exports.getRecentlySearch = (req, res, next) => {
-  return res.json(req.user.search);
+  if(req.user) return res.json(req.user.search);
+  else return res.json([]);
 };
 
 exports.popKeyword = (req, res, next) => {
@@ -236,47 +238,25 @@ exports.popKeyword = (req, res, next) => {
       .exec((err, keyword) => {
         const userIndex = keyword.users.indexOf(req.params.userId);
         keyword.users.splice(userIndex, 1);
-
-        let saveCount = 0;
-
         keyword.save(err => {
           if(err) return next(err);
-          console.log('keyword updated');
-          saveCount++;
+          redis.updateItem(keyword.university+":keywords", keyword.name, -1)
+            .then(reply => {
+              User.findByIdAndUpdate(req.params.userId,
+                { $pull : { keywords : { keyword : req.body.keyword, university : req.body.university } } },
+                {safe : true, upsert: true},
+                (err, user) => {
+                    if(err) return next(err);
+                    return res.json({
+                      "result" : "SUCCESS",
+                      "code" : "DELETE_KEYWORD",
+                      "message" : "success to delete keyword from user"
+                    });
+                });
+            }).error(err => {
+              next(err);
+            });
         });
-
-        redis.updateItem(keyword.university+":keywords", keyword.name, -1)
-          .then(reply => {
-            console.log('redis updated');
-            saveCount++;
-          }).error(err => {
-            next(err);
-          });
-
-        User.findByIdAndUpdate(req.params.userId,
-          { $pull : { keywords : { keyword : req.body.keyword, university : req.body.university } } },
-          {safe : true, upsert: true},
-          (err, user) => {
-              if(err) return next(err);
-              console.log('user updated');
-              saveCount++;
-          });
-
-          for(let wait=0 ; wait < 10000000 ; wait++){
-            if(saveCount === 3){
-              return res.json({
-                "result" : "SUCCESS",
-                "code" : "DELETE_KEYWORD",
-                "message" : "success to delete keyword from user"
-              });
-            }
-          }
-
-          res.json({
-            "result" : "FAILURE",
-            "code" : "DELETE_KEYWORD",
-            "message" : (3-saveCount) + "개가 저장에 실패했습니다."
-          });
       });
 };
 
