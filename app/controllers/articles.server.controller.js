@@ -163,19 +163,10 @@ exports.searchArticlesByKeyword = (req, res, next) => {
       "type" : "articles",
       "body" : { "query" : {
                     "bool" : {
-                      "must" : [
-                        {
-                        "bool" : {
-                          "should" : [
-                            { "match" : { "content" : req.params.keyword } },
-                            { "match" : { "title" : req.params.keyword } }
-                          ]
-                        }
-                      },
-                      {"bool" : communityQuery.bool},
-                      {"bool" : dateQuery.bool},
-                      {"bool" : wordQuery.bool}
-                    ]
+                      "should" : [
+                        { "match" : { "content" : req.params.keyword } },
+                        { "match" : { "title" : req.params.keyword } }
+                      ]
                     }
                   },
                   "sort" : [
@@ -186,6 +177,7 @@ exports.searchArticlesByKeyword = (req, res, next) => {
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
+        console.log('search done');
         if(result.message[0]){
           addKeywordForAutoComplete(req.body.university, req.params.keyword);
 

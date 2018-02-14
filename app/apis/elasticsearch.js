@@ -114,15 +114,9 @@ const config = require('../../config/config'),
             "code" : isFound,
             "message" : resp.hits.hits
           };
-          console.log(result);
           resolve(result);
         }, err => {
-            const error = {
-              "result" : "ERROR",
-              "code" : err.code,
-              "message" : err
-            };
-            reject(error);
+            reject(err);
           });
       });
     };
