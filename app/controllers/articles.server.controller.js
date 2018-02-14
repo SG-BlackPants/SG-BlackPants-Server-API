@@ -111,6 +111,7 @@ exports.searchArticlesByKeyword = (req, res, next) => {
         wordQuery = defaultQuery;
 
     if(req.body.community){
+      console.log(req.body.community);
       let communityIndex = 0;
       communityQuery = {
         "bool" : {
