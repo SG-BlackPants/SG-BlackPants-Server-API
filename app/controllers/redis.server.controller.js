@@ -29,7 +29,8 @@ exports.getKeywordRank = (req, res, next) => {
 //TEST필요
 exports.getPushHistory = (req, res, next) => {
   redis.getRank(req.body._id+':push').then(histories => {
-    console.log(histories);
+    const result = [];
+
     if(histories[0]){
       let jobCount = 0;
 

@@ -22,4 +22,7 @@ module.exports = app => {
 
   app.route('/redis/list/all/:board')
     .get(redis.list);
+
+  app.route('/redis/rank/push/test')
+    .post(redis.getPushHistory);
 };
