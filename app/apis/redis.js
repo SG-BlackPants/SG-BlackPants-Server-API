@@ -46,24 +46,35 @@ exports.suggestKeyword = (university, prefix) => {
   return new Promise((resolve, reject) => {
     const results = [];
     const prefixLength = prefix.length;
+    let jobCount = 0;
+
     if(prefix === null || prefixLength === 0) return resolve(results);
 
     for(let len = prefixLength ; len <= 30 ; len++){
       const key = university+':autocomplete:'+prefix.charAt(0)+':'+len;
       client.zrank(key, prefix, (err, start) => {
-        if(start === null) return;
+        if(start === null) {
+          console.log(len, jobCount+1);
+          return ++jobCount;
+        }
          client.zrange(key, start, -1, (err, words) => {
-          if(err) return reject(err);
-          if(words === null) return;
+          if(err) {
+            jobCount++;
+            return reject(err);
+          }
+          if(words === null) {
+            console.log(len, jobCount+1);
+            return ++jobCount;
+          }
 
           for(let index = 0; index < words.length ; index++){
+            const value = words[index];
             const minLength = value.length < prefixLength ? value.length : prefixLength;
             if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
               results.push(value.replace('*',''));
             }
-            if(index === words.length-1 && len === 30) {
-              return resolve(results);
-            }
+            jobCount++;
+            if(jobCount === 30-prefixLength) return resolve(results);
           }
         });
       });
