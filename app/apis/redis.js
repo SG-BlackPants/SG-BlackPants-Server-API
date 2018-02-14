@@ -47,37 +47,36 @@ exports.suggestKeyword = (university, prefix) => {
     const results = [];
     const prefixLength = prefix.length;
     let jobCount = 0;
+    let isFinished = true;
 
     if(prefix === null || prefixLength === 0) return resolve(results);
 
     for(let len = prefixLength ; len <= 30 ; len++){
       const key = university+':autocomplete:'+prefix.charAt(0)+':'+len;
       client.zrank(key, prefix, (err, start) => {
-        if(start === null) {
-          console.log(len, jobCount+1);
-          return ++jobCount;
-        }
+        if(start === null) return ++jobCount;
          client.zrange(key, start, -1, (err, words) => {
           if(err) {
             jobCount++;
             return reject(err);
           }
-          if(words === null) {
-            console.log(len, jobCount+1);
-            return ++jobCount;
-          }
+          if(words === null) return ++jobCount;
 
+          isFinished = false;
           for(let index = 0; index < words.length ; index++){
             const value = words[index];
             const minLength = value.length < prefixLength ? value.length : prefixLength;
             if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
               results.push(value.replace('*',''));
             }
-            jobCount++;
-            if(jobCount === 30-prefixLength) return resolve(results);
+            if(index === words.length-1) jobCount++;
+            if(jobCount === 31-prefixLength) return resolve(results);
           }
         });
       });
+    }
+    if(isFinished){
+      return resolve(results);
     }
   });
 };
