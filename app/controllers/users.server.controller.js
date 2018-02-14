@@ -232,12 +232,12 @@ exports.getRecentlySearch = (req, res, next) => {
 };
 
 exports.popKeyword = (req, res, next) => {
-  Keyword.findOne({ name : req.body.keyword, community : req.body.community })
+  Keyword.findOne({ name : req.body.keyword, university : req.body.university })
       .exec((err, keyword) => {
         const userIndex = keyword.users.indexOf(req.params.userId);
         keyword.users.splice(userIndex, 1);
 
-        const saveCount = 0;
+        let saveCount = 0;
 
         keyword.save(err => {
           if(err) return next(err);
@@ -245,7 +245,7 @@ exports.popKeyword = (req, res, next) => {
           saveCount++;
         });
 
-        redis.updateItem(keyword.university+":keywords", keyword,name, -1)
+        redis.updateItem(keyword.university+":keywords", keyword.name, -1)
           .then(reply => {
             console.log('redis updated');
             saveCount++;
