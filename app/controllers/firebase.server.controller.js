@@ -27,7 +27,7 @@ exports.findKeywordsForPush = (req, res, next) => {
 
   elasticsearch.searchAndReturn(query).then(keywords => {
     let result = [];
-    
+
     if(keywords.result === 'SUCCESS'){
       if(keywords.code === "NotFound"){
         return res.json({
@@ -104,7 +104,6 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
     };
 
     elasticsearch.searchAndReturn(query).then(result => {
-      return resolve(result.message);
       const articles = result.message;
       if(articles[0]) {
         return resolve(articles[0]._source);
@@ -130,6 +129,7 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
       "boardAddr" : node.boardAddr,
       "createdDate" : node.createdDate
     };
+    console.log(data);
 
     Keyword.findOne({name : node.keyword, university : req.body.university}, (err, keyword) => {
       if(err) console.log(err);
