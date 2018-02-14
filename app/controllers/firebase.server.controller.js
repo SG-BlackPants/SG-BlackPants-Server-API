@@ -89,7 +89,7 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
                       { "match" : { "university" : university } },
                       { "match" : { "content" : keyword } },
                       { "range" : { "createdDate" : {
-                                              "gte" : createdDate,
+                                              "gt" : createdDate,
                                               "lte" : "now",
                                               "time_zone" : "+09:00"
                                             }
