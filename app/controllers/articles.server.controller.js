@@ -103,67 +103,86 @@ exports.deleteAll = (req, res, next) => {
 };
 
 exports.searchArticlesByKeyword = (req, res, next) => {
-  const query = {
-    "index" : "univscanner",
-    "type" : "articles",
-    "body" : { "query" : {
-                  "bool" : {
-                    "must" : {
-                      "bool" : [{
-                        "should" : [
-                          { "match" : { "content" : req.params.keyword } },
-                          { "match" : { "title" : req.params.keyword } }
-                        ]
-                      }]
-                    }
-                  }
-                },
-                "sort" : [
-                  { "createdDate" : { "order" : "desc" } }
-                ]
-            }
+    const defaultQuery = {
+      "bool" : {
+        "should" : [
+          { "match" : {"content" : " "}}
+        ]
+      }
     };
+    let communityQuery = defaultQuery,
+        dateQuery = defaultQuery,
+        wordQuery = defaultQuery;
 
     if(req.body.community){
       let communityIndex = 0;
-      const communityQuery = {
+      communityQuery = {
+        "bool" : {
           "should" : [
-            { "match" : { "content" : req.body.community[communityIndex] } }
+            { "match" : { "community" : req.body.community[communityIndex] } }
           ]
+        }
         };
 
         while(req.body.community[++communityIndex]){
-          communityQuery.should.push({
-            "match" : { "content" : req.body.community[communityIndex] }
+          communityQuery.bool.should.push({
+            "match" : { "community" : req.body.community[communityIndex] }
           });
         }
-        query.body.query.bool.must.bool.push(communityQuery);
     }
 
     if(req.body.startDate){
-      query.body.query.bool.must.bool.push({
-        "must" : {
-          "range" : {
-            "createdDate" : {
-                                "gte" : req.body.startDate,
-                                "lte" : req.body.endDate,
-                                "time_zone" : "+09:00"
+      dateQuery = {
+        "bool" : {
+          "must" : [{
+            "range" : {
+              "createdDate" : {
+                                  "gte" : req.body.startDate,
+                                  "lte" : req.body.endDate,
+                                  "time_zone" : "+09:00"
+                                }
                               }
-                            }
+          }]
         }
-      });
+      };
     }
 
     if(req.body.secondWord){
-      query.body.query.bool.must.bool.push({
-        "should" : [
-          { "match" : { "content" : req.body.secondWord } },
-          { "match" : { "title" : req.body.secondWord } }
-        ]
-      });
+      wordQuery = {
+        "bool" : {
+          "should" : [
+            { "match" : { "content" : req.body.secondWord } },
+            { "match" : { "title" : req.body.secondWord } }
+          ]
+        }
+      };
     }
 
-    return res.json(query);
+    const query = {
+      "index" : "univscanner",
+      "type" : "articles",
+      "body" : { "query" : {
+                    "bool" : {
+                      "must" : [
+                        {
+                        "bool" : {
+                          "should" : [
+                            { "match" : { "content" : req.params.keyword } },
+                            { "match" : { "title" : req.params.keyword } }
+                          ]
+                        }
+                      },
+                      {"bool" : communityQuery.bool},
+                      {"bool" : dateQuery.bool},
+                      {"bool" : wordQuery.bool}
+                    ]
+                    }
+                  },
+                  "sort" : [
+                    { "createdDate" : { "order" : "desc" } }
+                  ]
+              }
+      };
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
