@@ -47,22 +47,28 @@ exports.suggestKeyword = (university, prefix) => {
     const results = [];
     const prefixLength = prefix.length;
     let jobCount = 0;
-    let isFinished = true;
 
     if(prefix === null || prefixLength === 0) return resolve(results);
 
     for(let len = prefixLength ; len <= 30 ; len++){
       const key = university+':autocomplete:'+prefix.charAt(0)+':'+len;
       client.zrank(key, prefix, (err, start) => {
-        if(start === null) return ++jobCount;
+        if(start === null) {
+          jobCount++;
+          if(jobCount === 31-prefixLength) return resolve(results);
+          return;
+        }
          client.zrange(key, start, -1, (err, words) => {
           if(err) {
             jobCount++;
             return reject(err);
           }
-          if(words === null) return ++jobCount;
+          if(words === null) {
+            jobCount++;
+            if(jobCount === 31-prefixLength) return resolve(results);
+            return;
+          }
 
-          isFinished = false;
           for(let index = 0; index < words.length ; index++){
             const value = words[index];
             const minLength = value.length < prefixLength ? value.length : prefixLength;
@@ -74,9 +80,6 @@ exports.suggestKeyword = (university, prefix) => {
           }
         });
       });
-    }
-    if(isFinished){
-      return resolve(results);
     }
   });
 };

@@ -63,6 +63,7 @@ exports.getPushHistory = (req, res, next) => {
 exports.getAutocompleteKeyword = (req, res, next) => {
   redis.suggestKeyword(req.params.university, req.params.prefix)
     .then(result => {
+      console.log('result: ' + result + ' in getAutocompleteKeyword');
       return res.json(result);
     }).error(err => {
       return next(err);
