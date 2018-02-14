@@ -12,6 +12,8 @@ exports.pushTest = (req, res, next) => {
 };
 
 exports.findKeywordsForPush = (req, res, next) => {
+  console.log('university: ' + req.body.university + ' createdDate: ' + req.body.createdDate);
+
   const query = {
     "index" : "univscanner",
     "type" : "keywords",
