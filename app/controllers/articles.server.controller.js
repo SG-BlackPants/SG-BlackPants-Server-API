@@ -104,11 +104,7 @@ exports.deleteAll = (req, res, next) => {
 
 exports.searchArticlesByKeyword = (req, res, next) => {
     const defaultQuery = {
-      "bool" : {
-        "should" : [
-          { "match" : {"content" : " "}}
-        ]
-      }
+      "bool" : {}
     };
     let communityQuery = defaultQuery,
         dateQuery = defaultQuery,
@@ -163,9 +159,18 @@ exports.searchArticlesByKeyword = (req, res, next) => {
       "type" : "articles",
       "body" : { "query" : {
                     "bool" : {
-                      "should" : [
-                        { "match" : { "content" : req.params.keyword } },
-                        { "match" : { "title" : req.params.keyword } }
+                      "must" : [
+                        {
+                          "bool" : {
+                            "should" : [
+                              { "match" : { "content" : req.params.keyword } },
+                              { "match" : { "title" : req.params.keyword } }
+                            ]
+                          }
+                        },
+                        { "bool" : communityQuery.bool},
+                        { "bool" : dateQuery.bool},
+                        { "bool" : wordQuery.bool}
                       ]
                     }
                   },
@@ -177,7 +182,6 @@ exports.searchArticlesByKeyword = (req, res, next) => {
 
   elasticsearch.searchAndReturn(query)
       .then(result => {
-        console.log('search done');
         if(result.message[0]){
           addKeywordForAutoComplete(req.body.university, req.params.keyword);
 
