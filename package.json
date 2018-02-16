@@ -1,7 +1,7 @@
 {
   "name": "UnivScanner",
   "version": "1.0.0",
-  "description": "for UnivScanner",
+  "description": "UnivScanner API Server",
   "main": "app.js",
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -11,7 +11,6 @@
     "elasticsearch": "^14.0.0",
     "express": "^4.16.2",
     "firebase-admin": "^5.8.1",
-    "leaderboard": "0.0.9",
     "method-override": "^2.3.10",
     "mongoose": "^4.13.9",
     "morgan": "^1.9.0",
@@ -23,7 +22,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "forever start -l D:/project/SG-BlackPants-Server-API/logfile.log -a app.js",
+    "start": "forever start -l ~/SG-BlackPants-Server-API/logfile.log -a app.js",
     "restart": "forever restart app.js",
     "stop": "forever stop app.js"
   },
