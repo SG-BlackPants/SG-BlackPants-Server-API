@@ -2,11 +2,11 @@ const config = require("../../config/config"),
       Promise = require('bluebird'),
       client = require('redis').createClient(config.redis_port, config.redis_host);
 
-exports.isConnected = () => {
+exports.isConnected = () => {  
   client.on('connect', () => {
     console.log('Redis connected');
   }, err => {
-    console.log('Redis connection fail');
+    console.log('Redis connection fail: ' + err);
   });
 };
 
