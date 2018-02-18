@@ -44,7 +44,7 @@ exports.getPushHistory = (req, res, next) => {
         });
 
         if(histories.length === ++jobCount){
-          res.json({
+          return res.json({
             "result" : "SUCCESS",
             "code" : "PUSH_HISTORY",
             "message" : result
@@ -52,7 +52,7 @@ exports.getPushHistory = (req, res, next) => {
         }
       });
     }else{
-      res.json({
+      return res.json({
         "result" : "FAILURE",
         "code" : "PUSH_HISTORY",
         "message" : []

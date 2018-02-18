@@ -140,9 +140,9 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
           keyword.users.forEach(user => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
-              fcmPush.sendMessageToClient(data);
-              pushCount++;
+              console.log('pushCount: ',++pushCount);
               redis.updateItem(user + ':push', data.keyword+'='+data.community+'='+data.boardAddr+'='+data.createdDate, Date.now());
+              fcmPush.sendMessageToClient(data);
             });
           });
         }
@@ -150,10 +150,10 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
     });
 
     if(req.body.keywords.length === ++jobCount){
-      return res.json({
+      res.json({
         "result" : "SUCCESS",
         "code" : "PUSH_DONE",
-        "message" : "success to push messages("+pushCount+")"
+        "message" : "success to push messages"
       });
     }
   });
