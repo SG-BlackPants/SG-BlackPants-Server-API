@@ -105,37 +105,32 @@ exports.pushKeywordToUser = (req, res, next) => {
     }else console.log('no duplicated keyword')
     keyword.users.push(req.user._id);
 
-    let community = [],
-        startDate = null,
-        endDate = null,
-        secondWord = null;
+    const keywordObject = {
+      "keyword" : req.body.keyword,
+      "university" : req.body.university,
+      "community" : [],
+      "startDate" : null,
+      "endDate" : null,
+      "secondWord" : null
+    };
 
     if(req.body.community) {
-      community = req.body.community;
+      keywordObject.community = req.body.community;
     }
+
     if(req.body.startDate){
       let sdate,edate;
       sdate = req.body.startDate.split('-');
       edate = req.body.endDate.split('-');
-      startDate = new Date(sdate[0]*1,sdate[1]*1-1,sdate[2]*1,9,0,0);
-      endDate = new Date(edate[0]*1,edate[1]*1-1,edate[2]*1,9,0,0);
+      keywordObject.startDate = new Date(sdate[0]*1,sdate[1]*1-1,sdate[2]*1,9,0,0);
+      keywordObject.endDate = new Date(edate[0]*1,edate[1]*1-1,edate[2]*1,9,0,0);
     }
-    if(req.body.secondWord) secondWord = req.body.secondWord;
-
-    const keywordObject = {
-      "keyword" : req.body.keyword,
-      "university" : req.body.university,
-      "community" : community,
-      "startDate" : startDate,
-      "endDate" : endDate,
-      "secondWord" : secondWord
-    };
-
-    return res.json(keywordObject);
+    
+    if(req.body.secondWord) {
+      keywordObject.secondWord = req.body.secondWord;
+    }
 
     req.user.keywords.push(keywordObject);
-
-    return res.json(req.user);
 
     let isSucceeded = true;
 
