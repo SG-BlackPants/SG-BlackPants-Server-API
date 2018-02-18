@@ -36,7 +36,9 @@ const UserSchema = new Schema({
     type : [{
       keyword : String,
       university : String,
-      community : String,
+      community : [{
+        type : String
+      }],
       startDate : Date,
       endDate : Date,
       secondWord : String
