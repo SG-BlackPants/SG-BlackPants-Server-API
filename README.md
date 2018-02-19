@@ -7,15 +7,32 @@ this is univScanner API Server
 ### mongodb 3.4 설치 및 실행
 #### Install MongoDB
 ```
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
-echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-3.4.list
-sudo apt-get update
-sudo apt-get install mongodb-org
+docker pull centos
+docker run --name blackpants_mongo -itd -p 27020:27017 --network blackpants-network centos /bin/bash
+docker exec -it blackpants_mongo /bin/bash
+```
+
+Open the file /etc/yum.repos.d/mongodb-org-3.4.repo and add the following values
+```
+[mongodb-org-3.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+```
+
+```
+yum install -y mongodb-org
 ```
 
 #### Configure MongoDB Replica Settings
 Open the file /etc/mongod.conf and add the following values
 ```
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+
 replication:
   oplogSizeMB: 5120
   replSetName: rs0
@@ -24,15 +41,12 @@ replication:
 
 Setting the following commands
 ```
-mongod
+nohup mongod --config /etc/mongod.conf &
 mongo
 rs.initiate({"_id" : "rs0","version" : 1,"members" : [{"_id" : 0,"host" : "localhost:27017"}]})
-```
 
-#### Start MongoDB
-```
-sudo systemctl enable mongod
-sudo systemctl start mongod
+kill -9 [mongod PID]
+nohup mongod --config /etc/mongod.conf &
 ```
 
 ### jdk 1.8 설치
@@ -56,16 +70,16 @@ sudo update-alternatives  --config java
 ### elasticsearch 5.4 설치 및 실행
 #### Install Elasticsearch
 ```
-sudo apt-get install apt-transport-https
-echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" > sudo /etc/apt/sources.list.d/elastic-5.x.list
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-sudo apt-get update
-sudo apt-get install elasticsearch
+docker pull elasticsearch
+docker run --name blackpants_elasticsearch -itd -p 5620:5601 --network blackpants-network centos /bin/bash
+docker exec -it blackpants_elasticsearch /bin/bash
 ```
 
 #### Configure Elasticsearch
 Open the file /etc/elasticsearch/elasticsearch.yml to adjust the following values
 ```
+docker exec -it blackpants_elasticsearch /bin/bash
+
 #Set the name of your Elasticsearch Cluster
 cluster.name: statusengine
 
@@ -89,8 +103,7 @@ node.data: true
 
 #### Start Elasticsearch
 ```
-sudo systemctl enable elasticsearch
-sudo systemctl start elasticsearch
+docker restart blackpants_elasticsearch
 ```
 
 ### pythone 3.6.3 설치
