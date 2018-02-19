@@ -92,15 +92,19 @@ exports.pushKeywordToUser = (req, res, next) => {
     }
 
     if(req.user.keywords.length === 5) {
-      const err = new Error('keywords exceeds the limit of 5');
-      err.code = 'KeywordExceeded'
+      const err = {
+        "code" : "EXCEEDED",
+        "message" : "keywords exceeds the limit of 5"
+      };
       return next(err);
     }else console.log('no exceeded 5')
 
     const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
     if(keywordUsersIndex > -1){
-      const err = new Error('keyword is duplicated');
-      err.code = 'KeywordDuplicated'
+      const err = {
+        "code" : "DUPLICATE",
+        "message" : "keyword is duplicated"
+      };
       return next(err);
     }else console.log('no duplicated keyword')
     keyword.users.push(req.user._id);

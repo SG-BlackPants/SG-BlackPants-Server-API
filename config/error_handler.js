@@ -32,6 +32,28 @@ module.exports = (app) => {
     }else next(err);
   });
 
+  app.use(function handleDuplicateError(err, req, res, next){
+    if(err.code === 'DUPLICATE'){
+      console.log('duplicate error');
+      res.status(401).json({
+        "result" : "ERROR",
+        "code" : "DUPLICATE",
+        "message" : err.message
+      });
+    }else next(err);
+  });
+
+  app.use(function handleExceededError(err, req, res, next){
+    if(err.code === 'EXCEEDED'){
+      console.log('duplicate error');
+      res.status(402).json({
+        "result" : "ERROR",
+        "code" : "EXCEEDED",
+        "message" : err.message
+      });
+    }else next(err);
+  });
+
   app.use(function handleDefaultError(err, req, res, next){
     console.log("I'm default error handler");
     console.log(err);
