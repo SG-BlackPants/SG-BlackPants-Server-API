@@ -129,11 +129,18 @@ sudo nohup mongo-connector -m localhost:27017 -t localhost:9200 -d elastic2_doc_
 ```
 
 ### Redis Server 3.0.6 설치 및 실행
+#### Install Redis Server
 ```
 sudo apt-get install redis-server
 sudo systemctl enable redis-server
 sudo systemctl start redis-server
 ```
+#### binding redis server
+```
+sudo vim /etc/redis/redis.config
+```
+bind 127.0.0.1 -> bind 0.0.0.0
+외부에서 remote 접근할 수 있도록 설정을 바꾼다.
 
 ### Node 설치
 #### Install Nodejs

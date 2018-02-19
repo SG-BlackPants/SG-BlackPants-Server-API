@@ -1,19 +1,22 @@
 const config = require("../../config/config"),
       Promise = require('bluebird'),
-      client = require('redis').createClient(config.redis_port, config.redis_host);
+      client = require('redis').createClient(config.redis_config);
 
 exports.isConnected = () => {
   client.on('connect', () => {
     console.log('Redis connected');
   }, err => {
-    console.log('Redis connection fail');
+    console.log('Redis connection fail: ' + err);
   });
 };
 
 exports.updateItem = (board, keyword, count) => {
   return new Promise((resolve, reject) => {
     client.zincrby(board, count, keyword, (err, reply) => {
-      if(err) reject(err);
+      if(err) {
+        console.log('rediserror: ' + err);
+        reject(err);
+      }
       resolve(reply);
     });
   });
@@ -25,12 +28,16 @@ exports.addKeyword = (university, keyword) => {
     keyword = keyword.trim();
     const key = university+':autocomplete:'+keyword.charAt(0)+':'+keyword.length;
     client.zadd(key, 0, keyword+'*', (err, reply) => {
-      if(err) console.log(err);
+      if(err) {
+        console.log(err);
+      }
       else{
           for(let index = 1 ; index < keyword.length ; index++){
             const prefix = keyword.substring(0, index);
             client.zadd(key, 0, prefix, (err, reply) => {
-              if(err) reject(err);
+              if(err) {
+                reject(err);
+              }
 
               if(index === keyword.length-1)
                 resolve(true);
@@ -48,14 +55,18 @@ exports.suggestKeyword = (university, prefix) => {
     const prefixLength = prefix.length;
     let jobCount = 0;
 
-    if(prefix === null || prefixLength === 0) return resolve(results);
+    if(prefix === null || prefixLength === 0) {
+      return resolve(results);
+    }
 
     for(let len = prefixLength ; len <= 30 ; len++){
       const key = university+':autocomplete:'+prefix.charAt(0)+':'+len;
       client.zrank(key, prefix, (err, start) => {
         if(start === null) {
           jobCount++;
-          if(jobCount === 31-prefixLength) return resolve(results);
+          if(jobCount === 31-prefixLength) {
+            return resolve(results);
+          }
           return;
         }
          client.zrange(key, start, -1, (err, words) => {
@@ -65,7 +76,9 @@ exports.suggestKeyword = (university, prefix) => {
           }
           if(words === null) {
             jobCount++;
-            if(jobCount === 31-prefixLength) return resolve(results);
+            if(jobCount === 31-prefixLength) {
+              return resolve(results);
+            }
             return;
           }
 
@@ -76,7 +89,9 @@ exports.suggestKeyword = (university, prefix) => {
               results.push(value.replace('*',''));
             }
             if(index === words.length-1) jobCount++;
-            if(jobCount === 31-prefixLength) return resolve(results);
+            if(jobCount === 31-prefixLength) {
+              return resolve(results);
+            }
           }
         });
       });

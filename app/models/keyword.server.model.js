@@ -23,6 +23,4 @@ const KeywordSchema = new Schema({
   usePushEach : true
 });
 
-KeywordSchema.set('toJSON', {virtuals : false});
-
 mongoose.model('Keyword', KeywordSchema);

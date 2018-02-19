@@ -20,14 +20,16 @@ exports.list = (req, res, next) => {
 };
 
 exports.read = (req, res, next) => {
+  const community = req.params.community,
+        boardAddr = req.params.boardAddr.replace(/-/g,'/');
   const query = {
     "index" : "univscanner",
     "type" : "articles",
     "body" : { "query" : {
                   "bool" : {
                     "must" : [
-                      { "match" : { "community" : req.params.community } },
-                      { "match" : { "boardAddr" : req.params.boardAddr } }
+                      { "match" : { "community" : community } },
+                      { "match" : { "boardAddr" : boardAddr } }
                     ]
                   }
                 }
@@ -36,24 +38,23 @@ exports.read = (req, res, next) => {
 
     elasticsearch.searchAndReturn(query)
         .then(result => {
-          return res.json({
-            "result" : "SUCCESS",
-            "code" : "readArticle",
-            "message" : result._source
-          })
+          if(result.code === "Found" && result.message[0]._source.boardAddr === boardAddr){
+            return res.json({
+              "result" : "SUCCESS",
+              "code" : "readArticle",
+              "message" : result.message[0]._source
+            });
+          }else{
+            return res.json({
+              "result" : "FAILURE",
+              "code" : "readArticle",
+              "message" : "empty"
+            });
+          }
         }).error(err => {
           console.log('error from read: ' + err)
           next(err);
         });
-  Article.findOne({community : req.params.community, boardAddr : req.params.boardAddr}, (err, article) => {
-    if(err) return next(err);
-    if(!article){
-      const err = new Error('article not exist');
-      err.code = 'ArticleNotExists'
-      return next(err);
-    }
-    res.json(article);
-  });
 };
 
 exports.update = (req, res, next) => { // only community, boardAddr
@@ -155,6 +156,15 @@ exports.searchArticlesByKeyword = (req, res, next) => {
       };
     }
 
+    /* 대학교 조건 걸어야함
+    {
+      "bool" : {
+        "must" : [
+          { "match" : { "university" : req.body.university } }
+        ]
+      }
+    },
+    */
     const query = {
       "index" : "univscanner",
       "type" : "articles",
