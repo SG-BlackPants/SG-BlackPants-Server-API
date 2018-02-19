@@ -125,7 +125,7 @@ exports.pushKeywordToUser = (req, res, next) => {
       keywordObject.startDate = new Date(sdate[0]*1,sdate[1]*1-1,sdate[2]*1,9,0,0);
       keywordObject.endDate = new Date(edate[0]*1,edate[1]*1-1,edate[2]*1,9,0,0);
     }
-    
+
     if(req.body.secondWord) {
       keywordObject.secondWord = req.body.secondWord;
     }
@@ -223,13 +223,15 @@ exports.decodingToken = (req, res, next) => {
 };
 
 exports.refreshToken = (req, res, next) => {
-  req.user.registrationToken = req.body.registrationToken;
-  req.user.save(err => {
-    if(err) return next(err);
-    res.json({
-      "result" : "SUCCESS",
-      "code" : "REFRESH_TOKEN",
-      "message" : req.user
+  User.findById(req.body._id, (err, user) => {
+    user.registrationToken = req.body.registrationToken;
+    user.save(err => {
+      if(err) return next(err);
+      res.json({
+        "result" : "SUCCESS",
+        "code" : "REFRESH_TOKEN",
+        "message" : user
+      });
     });
   });
 };
