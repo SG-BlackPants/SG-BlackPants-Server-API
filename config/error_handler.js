@@ -35,7 +35,7 @@ module.exports = (app) => {
   app.use(function handleDuplicateError(err, req, res, next){
     if(err.code === 'DUPLICATE'){
       console.log('duplicate error');
-      res.status(401).json({
+      res.status(211).json({
         "result" : "ERROR",
         "code" : "DUPLICATE",
         "message" : err.message
@@ -46,7 +46,7 @@ module.exports = (app) => {
   app.use(function handleExceededError(err, req, res, next){
     if(err.code === 'EXCEEDED'){
       console.log('duplicate error');
-      res.status(402).json({
+      res.status(212).json({
         "result" : "ERROR",
         "code" : "EXCEEDED",
         "message" : err.message
