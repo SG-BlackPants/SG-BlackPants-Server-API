@@ -22,7 +22,7 @@ module.exports = app => {
   app.route('/users/:userId/recently')
     .get(users.getRecentlySearch);
 
-  app.route('/users/:userId/refreshToken')
+  app.route('/users/refreshToken')
     .put(users.isValidToken, users.refreshToken);
 
   app.route('/fbToken')
