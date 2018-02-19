@@ -13,11 +13,7 @@ const KeywordSchema = new Schema({
   users : [{
     type : String,
     ref : 'User'
-  }],
-  count : {
-    type : Number,
-    default : 0
-  }
+  }]
 }, {
   versionKey: false,
   usePushEach : true
