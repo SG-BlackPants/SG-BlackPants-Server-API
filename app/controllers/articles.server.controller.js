@@ -205,7 +205,7 @@ exports.searchArticlesByKeyword = (req, res, next) => {
           res.json({
             "result" : "FAILURE",
             "code" : "Search",
-            "message" : "empty"
+            "message" : []
           });
         }
       }).error(err => {
