@@ -120,10 +120,11 @@ exports.pushKeywordToUser = (req, res, next) => {
 
     if(req.body.startDate){
       let sdate,edate;
-      sdate = req.body.startDate.split('-');
-      edate = req.body.endDate.split('-');
-      keywordObject.startDate = new Date(sdate[0]*1,sdate[1]*1-1,sdate[2]*1,9,0,0);
-      keywordObject.endDate = new Date(edate[0]*1,edate[1]*1-1,edate[2]*1,9,0,0);
+      sdate = req.body.startDate.split('T')[0].split('-');
+      edate = req.body.endDate.split('T')[0].split('-');
+      keywordObject.startDate = new Date(sdate[0]*1,sdate[1]*1-1,sdate[2]*1,0,0,0);
+      keywordObject.endDate = new Date(edate[0]*1,edate[1]*1-1,edate[2]*1,0,0,0);
+      console.log(keywordObject.startDate + '-' + keywordObject.endDate);
     }
 
     if(req.body.secondWord) {
