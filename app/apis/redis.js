@@ -69,7 +69,7 @@ exports.suggestKeyword = (university, prefix) => {
           }
           return;
         }
-         client.zrange(key, start, -1, "withscores", (err, words) => {
+         client.zrange(key, start, -1, "WITHSCORES", (err, words) => {
           if(err) {
             jobCount++;
             return reject(err);
