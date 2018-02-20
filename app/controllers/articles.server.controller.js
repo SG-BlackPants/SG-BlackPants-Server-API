@@ -168,7 +168,9 @@ exports.searchArticlesByKeyword = (req, res, next) => {
     const query = {
       "index" : "univscanner",
       "type" : "articles",
-      "body" : { "query" : {
+      "body" : {
+                "from" : 0, "size" : 10,
+                "query" : {
                     "bool" : {
                       "must" : [
                         {
@@ -208,17 +210,18 @@ exports.searchArticlesByKeyword = (req, res, next) => {
   elasticsearch.searchAndReturn(query)
       .then(result => {
         if(result.message[0]){
-          addKeywordForAutoComplete(req.body.university, req.params.keyword);
-
+          addKeywordForAutoComplete(req.body.university, req.params.keyword, result.count);
           res.json({
             "result" : "SUCCESS",
             "code" : "Search",
+            "count" : result.count,
             "message" : result.message
           });
         }else{
           res.json({
             "result" : "FAILURE",
             "code" : "Search",
+            "count" : result.count,
             "message" : []
           });
         }
@@ -228,14 +231,16 @@ exports.searchArticlesByKeyword = (req, res, next) => {
       });
 };
 
-function addKeywordForAutoComplete(university, keyword){
-  redis.addKeyword(university, keyword)
+function addKeywordForAutoComplete(university, keyword, count){
+  redis.addKeyword(university, keyword, count)
     .then(reply => {
       if(!reply){
         console.log("empty");
       }
       console.log(university + ' : ' + keyword);
+      return;
     }).error(err => {
-      next(err);
+      console.log('addKeywordForAutoComplete Error: ' + err);
+      return;
     });
 };

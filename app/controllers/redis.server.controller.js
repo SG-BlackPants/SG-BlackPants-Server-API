@@ -83,7 +83,6 @@ exports.getPushHistory = (req, res, next) => {
 exports.getAutocompleteKeyword = (req, res, next) => {
   redis.suggestKeyword(req.params.university, req.params.prefix)
     .then(result => {
-      console.log('result: ' + result + ' in getAutocompleteKeyword');
       return res.json(result);
     }).error(err => {
       return next(err);
@@ -91,9 +90,9 @@ exports.getAutocompleteKeyword = (req, res, next) => {
 };
 
 exports.addKeywordForAutoComplete = (req, res, next) => {
-  redis.addKeyword(req.body.university, req.body.keyword)
+  redis.addKeyword(req.body.university, req.body.keyword, req.body.count)
     .then(reply => {
-      if(!reply){
+      if(reply === null){
         return res.json({
           "result" : "FAILURE",
           "code" : "ADD_AUTOCOMPLETE",
@@ -103,7 +102,7 @@ exports.addKeywordForAutoComplete = (req, res, next) => {
       return res.json({
         "result" : "SUCCESS",
         "code" : "ADD_AUTOCOMPLETE",
-        "message" : req.body.university + ' : ' + req.body.keyword
+        "message" : req.body.university + ":" + req.body.keyword + ":" + req.body.count
       });
     }).error(err => {
       next(err);

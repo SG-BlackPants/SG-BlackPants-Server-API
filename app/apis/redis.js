@@ -23,11 +23,11 @@ exports.updateItem = (board, keyword, count) => {
 };
 
 //TEST필요
-exports.addKeyword = (university, keyword) => {
+exports.addKeyword = (university, keyword, count) => {
   return new Promise((resolve, reject) => {
     keyword = keyword.trim();
     const key = university+':autocomplete:'+keyword.charAt(0)+':'+keyword.length;
-    client.zadd(key, 0, keyword+'*', (err, reply) => {
+    client.zadd(key, count, keyword+'*', (err, reply) => {
       if(err) {
         console.log(err);
       }
@@ -69,7 +69,7 @@ exports.suggestKeyword = (university, prefix) => {
           }
           return;
         }
-         client.zrange(key, start, -1, (err, words) => {
+         client.zrange(key, start, -1, "withscores", (err, words) => {
           if(err) {
             jobCount++;
             return reject(err);
@@ -82,13 +82,16 @@ exports.suggestKeyword = (university, prefix) => {
             return;
           }
 
-          for(let index = 0; index < words.length ; index++){
+          for(let index = 0; index < words.length ; index+=2){
             const value = words[index];
             const minLength = value.length < prefixLength ? value.length : prefixLength;
             if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
-              results.push(value.replace('*',''));
+              results.push({
+                "keyword" : value.replace('*',''),
+                "count" : words[index+1]
+              });
             }
-            if(index === words.length-1) jobCount++;
+            if(index === words.length-2) jobCount++;
             if(jobCount === 31-prefixLength) {
               return resolve(results);
             }

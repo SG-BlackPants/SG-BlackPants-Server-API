@@ -108,10 +108,11 @@ const config = require('../../config/config'),
         elasticClient.search(query).then(resp => {
           let isFound = 'NotFound';
           if(resp.hits.hits[0]) isFound = 'Found'
-          
+
           const result = {
             "result" : "SUCCESS",
             "code" : isFound,
+            "count" : resp.hits.total,
             "message" : resp.hits.hits
           };
           resolve(result);
