@@ -91,13 +91,13 @@ exports.pushKeywordToUser = (req, res, next) => {
       keyword.university = req.body.university;
     }
 
-    if(req.user.keywords.length === 5) {
+    if(req.user.keywords.length === 10) {
       const err = {
         "code" : "EXCEEDED",
-        "message" : "keywords exceeds the limit of 5"
+        "message" : "keywords exceeds the limit of 10"
       };
       return next(err);
-    }else console.log('no exceeded 5')
+    }else console.log('no exceeded 10')
 
     const keywordUsersIndex = keyword.users.indexOf(req.user._id);  //keyword 중복 등록
     if(keywordUsersIndex > -1){

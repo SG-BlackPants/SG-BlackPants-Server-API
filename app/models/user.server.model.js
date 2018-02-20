@@ -63,6 +63,6 @@ const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 
 UserSchema.path('email').validate(email => emailRegex.test(email), 'Please fill a valid email address');
 UserSchema.path('_id').validate(id => id.length === 28, 'uid length must be 28');
-UserSchema.path('keywords').validate(keywords => keywords.length <= 5, 'keywords exceeds the limit of 5');
+UserSchema.path('keywords').validate(keywords => keywords.length <= 10, 'keywords exceeds the limit of 10');
 
 mongoose.model('User', UserSchema);
