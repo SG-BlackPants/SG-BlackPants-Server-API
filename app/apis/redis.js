@@ -88,7 +88,7 @@ exports.suggestKeyword = (university, prefix) => {
             if(value.charAt(value.length-1) === '*' && value.indexOf(prefix.substring(0, minLength)) === 0){
               results.push({
                 "keyword" : value.replace('*',''),
-                "count" : words[index+1]
+                "count" : words[index+1]*1
               });
             }
             if(index === words.length-2) jobCount++;
