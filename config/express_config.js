@@ -11,6 +11,7 @@ module.exports = () => {
       console.log('Development Mode');
       app.use(morgan('dev'));
    } else if (process.env.NODE_ENV === 'production') {
+     console.log('Production Mode');
       app.use(compress());
    }
 

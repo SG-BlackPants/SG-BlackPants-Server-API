@@ -142,7 +142,6 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
 
 exports.findUserByKeywordAndPush = (req, res, next) => {
   let jobCount = 0;
-  let pushCount = 0;
 
   req.body.keywords.forEach((node) => {
     const data = {
@@ -151,7 +150,6 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
       "boardAddr" : node.boardAddr,
       "createdDate" : node.createdDate
     };
-    console.log(data);
 
     Keyword.findOne({name : node.keyword, university : req.body.university}, (err, keyword) => {
       if(err) console.log(err);
@@ -160,7 +158,6 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
           keyword.users.forEach(user => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
-              console.log('pushCount: ', ++pushCount);
               redis.updateItem(user + ':push', data.keyword+'='+data.community+'='+data.boardAddr, new Date(data.createdDate).getTime());
               fcmPush.sendMessageToClient(data);
             });

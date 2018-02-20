@@ -6,5 +6,3 @@ module.exports = {
     port: 6379
   }
 }
-
-//mongodb : "mongodb://192.168.0.60:27020/univscanner",
