@@ -7,6 +7,9 @@ module.exports = app => {
   .get(articles.list)
   .delete(articles.deleteAll);
 
+  app.route('/articletest/:keyword')
+    .post(articles.searchArticlesByKeyword);
+
   app.route('/articles/:keyword')
     .post(users.isValidToken, users.addSearchHistoryAndNext, articles.searchArticlesByKeyword);
 
@@ -14,7 +17,4 @@ module.exports = app => {
   .get(articles.read)
   .put(articles.update)
   .delete(articles.delete);
-
-  app.route('/articletest/:keyword')
-    .post(articles.searchArticlesByKeyword);
 };

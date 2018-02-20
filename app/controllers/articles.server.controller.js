@@ -149,8 +149,8 @@ exports.searchArticlesByKeyword = (req, res, next) => {
       wordQuery = {
         "bool" : {
           "should" : [
-            { "match" : { "content" : req.body.secondWord } },
-            { "match" : { "title" : req.body.secondWord } }
+            { "match" : { "content" : { "query" : req.body.secondWord, "fuzziness" : "AUTO" } } },
+            { "match" : { "title" : { "query" : req.body.secondWord, "fuzziness" : "AUTO" } } }
           ]
         }
       };
@@ -174,8 +174,22 @@ exports.searchArticlesByKeyword = (req, res, next) => {
                         {
                           "bool" : {
                             "should" : [
-                              { "match" : { "content" : req.params.keyword } },
-                              { "match" : { "title" : req.params.keyword } }
+                              {
+                                "match" : {
+                                  "content" : {
+                                    "query" : req.params.keyword,
+                                    "fuzziness" : "AUTO"
+                                  }
+                                }
+                              },
+                              {
+                                "match" : {
+                                  "title" : {
+                                    "query" : req.params.keyword,
+                                    "fuzziness" : "AUTO"
+                                  }
+                              }
+                            }
                             ]
                           }
                         },

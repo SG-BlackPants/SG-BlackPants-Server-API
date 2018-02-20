@@ -87,7 +87,27 @@ function hasNewArticleByKeyword(university, keyword, createdDate){
                   "bool" : {
                     "must" : [
                       { "match" : { "university" : university } },
-                      { "match" : { "content" : keyword } },
+                      { "bool" : {
+                          "should" : [
+                            {
+                              "match" : {
+                                "content" : {
+                                  "query" : keyword,
+                                  "fuzziness" : "AUTO"
+                                }
+                              }
+                            },
+                            {
+                              "match" : {
+                                "title" : {
+                                  "query" : keyword,
+                                  "fuzziness" : "AUTO"
+                                }
+                            }
+                          }
+                          ]
+                        }
+                      },
                       { "range" : { "createdDate" : {
                                               "gt" : createdDate,
                                               "lte" : "now",
@@ -140,8 +160,8 @@ exports.findUserByKeywordAndPush = (req, res, next) => {
           keyword.users.forEach(user => {
             User.findById(user, (err, _user) => {
               data.dest = _user.registrationToken;
-              console.log('pushCount: ',++pushCount);
-              redis.updateItem(user + ':push', data.keyword+'='+data.community+'='+data.boardAddr+'='+data.createdDate, Date.now());
+              console.log('pushCount: ', ++pushCount);
+              redis.updateItem(user + ':push', data.keyword+'='+data.community+'='+data.boardAddr, new Date(data.createdDate).getTime());
               fcmPush.sendMessageToClient(data);
             });
           });

@@ -28,29 +28,48 @@ exports.getKeywordRank = (req, res, next) => {
 
 //TEST필요
 exports.getPushHistory = (req, res, next) => {
-  redis.getRank(req.body._id+':push').then(histories => {
-    const result = [];
+  redis.getRankForTest(req.body._id+':push').then(histories => {
+    const results = [];
 
     if(histories[0]){
       let jobCount = 0;
 
-      histories.forEach(history => {
-        const strArr = history.split('=');
-        result.push({
+      for(let index = 0; index < histories.length; index += 2){
+        const strArr = histories[index].split('=');
+        const createdDate = new Date(histories[index+1]*1.0);
+
+        results.push({
           "keyword" : strArr[0],
           "community" : strArr[1],
           "boardAddr" : strArr[2],
-          "createdDate" : strArr[3]
+          "createdDate" : createdDate
         });
 
-        if(histories.length === ++jobCount){
+        if(index === histories.length-2){
           return res.json({
             "result" : "SUCCESS",
             "code" : "PUSH_HISTORY",
-            "message" : result
-          });
+            "message" : results
+          })
         }
-      });
+      }
+      // histories.forEach(history => {
+      //   const strArr = history.split('=');
+      //   results.push({
+      //     "keyword" : strArr[0],
+      //     "community" : strArr[1],
+      //     "boardAddr" : strArr[2],
+      //     "createdDate" : strArr[3]
+      //   });
+      //
+      //   if(histories.length === ++jobCount){
+      //     return res.json({
+      //       "result" : "SUCCESS",
+      //       "code" : "PUSH_HISTORY",
+      //       "message" : results
+      //     });
+      //   }
+      // });
     }else{
       return res.json({
         "result" : "FAILURE",
